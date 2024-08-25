@@ -192,13 +192,14 @@ async function fetchPageData(roundId) {
         candidateName: contestant.name || 'Unknown',
         candidateImage: contestant.photo || '',
         roundName: contestant.Round[0]?.name || 'No Round',
-        criteriaMap: round.scoresMap || {} // Add the scoresMap to the criteriaMap
+        criteriaMap: {} // Initialize as an empty object
       }));
     round.totalItems = count;
   } catch (error) {
     console.error(`Error fetching data for round ${roundId}:`, error.message);
   }
 }
+
 
 
 async function submitScores() {
@@ -211,20 +212,13 @@ async function submitScores() {
     rounds.value.forEach(round => {
       round.items.forEach(item => {
         Object.entries(item.criteriaMap).forEach(([criteriaId, score]) => {
-          const contestantId = String(item.candidateId);  // Ensure correct type (string for UUID)
-          const criteriaIdNum = Number(criteriaId);       // Ensure correct type
-          const userIdStr = String(userId);               // Ensure correct type (string for UUID)
-          const roundIdStr = String(round.id);            // Ensure correct type (string for UUID)
-
-          const numericScore = Number(score);
-
-          if (!isNaN(numericScore)) {
+          if (score !== null && score !== undefined) {
             scoresToSubmit.push({
-              Contestants_id: contestantId,  // Ensure string type for UUID
-              Criteria_id: criteriaIdNum,    // Ensure correct type
-              Users_id: userIdStr,           // Ensure string type for UUID
-              Round_id: roundIdStr,          // Ensure string type for UUID
-              Score: numericScore            // Ensure Score is a number
+              Contestants_id: String(item.candidateId),
+              Criteria_id: Number(criteriaId),
+              Users_id: String(userId),
+              Round_id: String(round.id),
+              Score: Number(score)
             });
           }
         });
@@ -243,14 +237,20 @@ async function submitScores() {
     if (error) throw new Error(error.message);
 
     alert('Scores submitted successfully');
-
-    // Update the state to indicate that scores have been submitted
     submitted.value = true;
-    localStorage.setItem('scoresSubmitted', 'true'); // Save state to localStorage
+    localStorage.setItem('scoresSubmitted', 'true');
   } catch (error) {
     alert('Error submitting scores: ' + error.message);
   }
 }
+
+
+
+function handleScoreChange(candidateId, criteriaId) {
+  console.log(`Score changed for candidate ${candidateId}, criteria ${criteriaId}`);
+  // Additional logic to handle score changes if needed
+}
+
 
 
 function resetSubmissionState() {

@@ -41,7 +41,7 @@
       >
         <thead class="opacity-60">
           <tr>
-            <th class="text-left text-green">ID</th>
+            <!-- <th class="text-left text-green">ID</th> -->
             <th class="text-left text-green">Name</th>
             <th class="text-left text-green">Email</th>
             <th class="text-left text-green">Address</th>
@@ -52,9 +52,12 @@
         </thead>
         <tbody>
           <tr v-for="User in serverItems" :key="User.id">
-            <td>{{ User.id }}</td>
+            
             <td>{{ User.name }}</td>
             <td>{{ User.email }}</td>
+            <!-- <td>{{ User.id }}</td> -->
+
+
             <td>{{ User.address }}</td>
             <td>{{ User.phone }}</td>
             <!-- <td>{{ User.course }}</td> -->

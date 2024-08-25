@@ -194,70 +194,73 @@ export default {
     const success = ref('');
 
     const login = async () => {
-      loading.value = true;
+  loading.value = true;
 
-      try {
-        // Sign in with email and password
-        const { data, error: loginError } = await supabase.auth.signInWithPassword({
-          email: email.value,
-          password: password.value,
-        });
+  try {
+    // Sign in with email and password
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value,
+    });
 
-        if (loginError) {
-          throw new Error(loginError.message);
-        }
+    if (loginError) {
+      throw new Error(loginError.message);
+    }
 
-        // Access user ID from the response
-        const user = data.user;
+    // Access user ID from the response
+    const user = data.user;
 
-        if (!user) {
-          throw new Error('User not found in the response');
-        }
+    if (!user) {
+      throw new Error('User not found in the response');
+    }
 
-        console.log('User ID:', user.id); // Debugging line
+    console.log('User ID:', user.id); // Debugging line
 
-        // Check if the user already exists in the `users` table
-        const { data: existingUser, error: fetchError } = await supabase
-          .from('Users')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+    // Check if the user already exists in the `users` table
+    const { data: existingUser, error: fetchError } = await supabase
+      .from('Users')
+      .select('*')
+      .eq('id', user.id);
 
-        if (fetchError && fetchError.message !== 'No rows') {
-          throw new Error(fetchError.message);
-        }
+    if (fetchError) {
+      throw new Error(fetchError.message);
+    }
 
-        if (!existingUser) {
-          // Insert new user record if not found
-          const { error: insertError } = await supabase
-            .from('Users')
-            .insert([{ id: user.id, email: email.value }]);
+    if (existingUser.length === 0) {
+      // Insert new user record if not found
+      const { error: insertError } = await supabase
+        .from('Users')
+        .insert([{ id: user.id, email: email.value }]);
 
-          if (insertError) {
-            throw new Error(insertError.message);
-          }
-        }
-
-        // Check if the email and password are both 'Admin'
-        if (email.value === 'admin@gmail.com' && password.value === 'admin') {
-          // Redirect to Admin Dashboard
-          router.push('/Admin/Dashboard');
-        } else {
-          // Redirect to VotingForm for other users
-          router.push('/Users/VotingForm');
-        }
-
-        success.value = 'Login successful!';
-        error.value = '';
-        console.log('Login successful:', data);
-      } catch (err) {
-        error.value = err.message;
-        success.value = '';
-        console.log('Login error:', err.message);
-      } finally {
-        loading.value = false;
+      if (insertError) {
+        throw new Error(insertError.message);
       }
-    };
+    } else if (existingUser.length > 1) {
+      // Handle the case where multiple rows are returned (should not happen if `id` is unique)
+      throw new Error('Multiple users found with the same ID');
+    }
+
+    // Check if the email and password are both 'Admin'
+    if (email.value === 'admin@gmail.com' && password.value === 'admin') {
+      // Redirect to Admin Dashboard
+      router.push('/Admin/Dashboard');
+    } else {
+      // Redirect to VotingForm for other users
+      router.push('/Users/VotingForm');
+    }
+
+    success.value = 'Login successful!';
+    error.value = '';
+    console.log('Login successful:', data);
+  } catch (err) {
+    error.value = err.message;
+    success.value = '';
+    console.log('Login error:', err.message);
+  } finally {
+    loading.value = false;
+  }
+};
+
 
     return {
       email,

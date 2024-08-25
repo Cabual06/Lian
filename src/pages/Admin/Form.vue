@@ -13,14 +13,15 @@
           Add Candidate<v-icon icon="mdi-plus" end></v-icon>
         </v-btn>
 
-        
-        <v-btn @click="showDialog = true" variant="tonal" class="ma-2 z-index" color="green">
-        Create Round<v-icon icon="mdi-plus" end></v-icon>
-      </v-btn>
-
-        <v-btn to="/Admin/AddCandidate" variant="tonal" class="ma-2 z-index" color="red">
-          Reset<v-icon icon="mdi mdi-delete" end></v-icon>
+        <v-btn 
+          @click="resetCandidates" 
+          variant="tonal" 
+          class="ma-2 z-index" 
+          color="red"
+        >
+          Reset Candidates<v-icon icon="mdi mdi-delete" end></v-icon>
         </v-btn>
+
       </v-container>
   
       <v-toolbar class="bg-transparent mb-4 opacity-80">
@@ -115,6 +116,10 @@
     <h1 class="text-medium-emphasis"><span class="text-green">R</span>ounds</h1>
 
     <v-spacer></v-spacer>
+
+    <v-btn @click="showDialog = true" variant="tonal" class="ma-2 z-index" color="green">
+      Create Round<v-icon icon="mdi-plus" end></v-icon>
+    </v-btn>
 
     <v-btn 
       variant="tonal" 
@@ -259,16 +264,6 @@
 
 
 
-
-
-
-
-
-
-
-
-       <!-- Dialog for adding a new round with multiple criteria -->
-      <!-- Dialog for adding a new round with multiple criteria -->
 <!-- Dialog for adding a new round with multiple criteria -->
 <v-dialog v-model="showDialog" max-width="600">
   <v-card class="bg-black rounded-lg">
@@ -346,8 +341,6 @@
   </v-card>
 </v-dialog>
 
-
-
 </template>
 
 
@@ -417,9 +410,6 @@ const isMatchRounds = ref(false);
 
 
 
-
-
-
 // Fetch data for candidates
 async function fetchPageData() {
   isLoading.value = true;
@@ -449,7 +439,7 @@ async function fetchPageData() {
 
 
 
-
+// Save Candidate
 async function saveCandidate() {
   try {
     // Ensure id and roundId are numbers
@@ -613,11 +603,60 @@ async function deleteCandidate(id) {
 
 
 
+// Function to reset (delete all) candidates
+async function resetCandidates() {
+  try {
+    // Confirm the action with the user
+    const confirmed = confirm('Are you sure you want to delete all candidates? This action cannot be undone.');
+    if (!confirmed) return; // Exit if the user cancels
+
+    // Fetch all candidate IDs
+    const { data: candidates, error: fetchError } = await supabase
+      .from('Contestants')
+      .select('id');
+
+    if (fetchError) throw fetchError;
+
+    // Proceed if there are candidates to delete
+    if (candidates.length > 0) {
+      const idsToDelete = candidates.map(candidate => candidate.id);
+
+      // Batch delete candidates
+      const { error: deleteError } = await supabase
+        .from('Contestants')
+        .delete()
+        .in('id', idsToDelete);
+
+      if (deleteError) throw deleteError;
+
+      alert('All candidates have been deleted successfully!');
+      fetchPageData(); // Refresh the candidates data
+    } else {
+      alert('No candidates found to delete.');
+    }
+  } catch (error) {
+    console.error('Error deleting all candidates:', error.message);
+    alert('Failed to delete all candidates. Please try again.');
+  }
+}
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+  // Delete Round
   async function deleteRound(id) {
   try {
     const { error } = await supabase
@@ -633,7 +672,7 @@ async function deleteCandidate(id) {
   } catch (error) {
     console.error('Error deleting round:', error.message);
   }
-}
+  }
 
 
 
@@ -657,7 +696,7 @@ async function deleteCandidate(id) {
 
 
 
-
+  // Save Round
   async function saveRound() {
   try {
     // Convert IDs to numbers
@@ -735,11 +774,16 @@ async function deleteCandidate(id) {
   }
 }
 
-const uniqueRoundIds = computed(() => {
-  const roundIds = serverItemsRounds.value.map(item => item.roundId);
-  return [...new Set(roundIds)]; // Remove duplicates
-});
 
-console.log('Server items for select:', serverItems.value.map(c => ({ text: c.name, value: c.id })));
+
+
+
+
+  const uniqueRoundIds = computed(() => {
+    const roundIds = serverItemsRounds.value.map(item => item.roundId);
+    return [...new Set(roundIds)]; // Remove duplicates
+  });
+
+  console.log('Server items for select:', serverItems.value.map(c => ({ text: c.name, value: c.id })));
 
 </script>

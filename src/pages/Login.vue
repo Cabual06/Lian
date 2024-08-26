@@ -190,6 +190,9 @@ export default {
     const visible = ref(false);
     const email = ref('');
     const password = ref('');
+    const name = ref('');
+    const address = ref('');
+    const phone = ref('');
     const error = ref('');
     const success = ref('');
 
@@ -201,6 +204,7 @@ export default {
     const { data, error: loginError } = await supabase.auth.signInWithPassword({
       email: email.value,
       password: password.value,
+
     });
 
     if (loginError) {
@@ -230,7 +234,7 @@ export default {
       // Insert new user record if not found
       const { error: insertError } = await supabase
         .from('Users')
-        .insert([{ id: user.id, email: email.value }]);
+        .insert([{ id: user.id, email: email.value, name: name.value, address: address.value, phone: phone.value}]);
 
       if (insertError) {
         throw new Error(insertError.message);

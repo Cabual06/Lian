@@ -124,80 +124,86 @@
   
   
   <script>
-  import { ref } from 'vue';
-  import { supabase } from '../clients/supabase';  // Ensure the path is correct
+import { ref } from 'vue';
+import { supabase } from '../clients/supabase';  // Ensure the path is correct
 
-  export default {
-    setup() {
-      const loading = ref(false);
-      const name = ref('');
-      const email = ref('');
-      const phone = ref('');
-      const address = ref('');
-      const password = ref('');
-      const visible = ref(false);
-      const error = ref('');
-      const success = ref('');
-  
-      const signup = async () => {
+export default {
+  setup() {
+    const loading = ref(false);
+    const name = ref('');
+    const email = ref('');
+    const phone = ref('');
+    const address = ref('');
+    const password = ref('');
+    const visible = ref(false);
+    const error = ref('');
+    const success = ref('');
+
+    const signup = async () => {
       loading.value = true;
 
-  // Perform signup with email and password
-      const { user, error: signupError } = await supabase.auth.signUp({
-        email: email.value,
-        password: password.value,
-      });
+      try {
+        // Perform signup with email and password
+        const { user, error: signupError } = await supabase.auth.signUp({
+          email: email.value,
+          password: password.value,
+        });
 
-      if (signupError) {
-        error.value = signupError.message;
-        success.value = '';
+        if (signupError) {
+          throw new Error(signupError.message);
+        }
+
+        if (user) {
+          // Insert additional user profile information into 'Users' table
+          const { data: profileData, error: profileError } = await supabase
+            .from('Users') // Ensure this table name is correct
+            .insert([{
+              id: user.id,          // Check if 'id' column exists and is used as primary key
+              name: name.value,
+              email: email.value,
+              phone: phone.value,
+              address: address.value
+            }])
+            .select();
+            console.log('Insert Data:', data);
+
+          if (profileError) {
+            throw new Error(profileError.message);
+          }
+
+          console.log('Inserted User Profile:', profileData); // Debugging output
+        }
+
+        success.value = 'SignUp Successful';
+        alert('Please verify your email to Login');
+      } catch (err) {
+        console.error('Error during signup:', err.message); // Improved error logging
+        error.value = err.message;
+      } finally {
         loading.value = false;
-        return;
+
+        // Clear form fields
+        name.value = '';
+        email.value = '';
+        phone.value = '';
+        address.value = '';
+        password.value = '';
       }
-
-      // Insert additional user profile information without providing id
-      const { data: profileData, error: profileError } = await supabase
-        .from('Users') // Ensure this table name is correct
-        .insert([{ name: name.value, email: email.value, phone: phone.value, address: address.value }]);
-
-      if (profileError) {
-        error.value = profileError.message;
-        loading.value = false;
-        return;
-      }
-
-      success.value = 'SignUp Successful';
-      alert('Please verify your email to Login');
-      error.value = '';
-      loading.value = false;
-
-      // Clear form fields
-      name.value = '';
-      email.value = '';
-      phone.value = '';
-      address.value = '';
-      password.value = '';
     };
 
+    return {
+      name,
+      email,
+      phone,
+      address,
+      password,
+      visible,
+      error,
+      success,
+      signup,
+      loading,
+    };
+  },
+};
+</script>
 
-  
-      return {
-        name,
-        email,
-        phone,
-        address,
-        password,
-        visible,
-        error,
-        success,
-        signup,
-        loading,
-      };
-    },
-  };
-  
-  </script>
-  
-  <style scoped>
-  
-  </style>

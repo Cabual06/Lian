@@ -11,6 +11,7 @@
     "@mdi/font": "7.4.47",
     "@supabase/supabase-js": "^2.45.1",
     "core-js": "^3.37.1",
+    "nodemailer": "^6.9.14",
     "roboto-fontface": "*",
     "vue": "^3.4.31",
     "vuetify": "^3.6.11"

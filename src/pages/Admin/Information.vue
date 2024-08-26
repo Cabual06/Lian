@@ -45,6 +45,7 @@
                     {icon:'../src/assets/vue.png', title:'Vuetify', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
                     {icon:'../src/assets/vue.png', title:'SupaBase', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
                     {icon:'../src/assets/vue.png', title:'Axios', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+                    {icon:'../src/assets/vue.png', title:'SMTP Server', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
                 ]
             }
         }

@@ -230,19 +230,19 @@ export default {
       throw new Error(fetchError.message);
     }
 
-    if (existingUser.length === 0) {
-      // Insert new user record if not found
-      const { error: insertError } = await supabase
-        .from('Users')
-        .insert([{ id: user.id, email: email.value, name: name.value, address: address.value, phone: phone.value}]);
+    // if (existingUser.length === 0) {
+    //   // Insert new user record if not found
+    //   const { error: insertError } = await supabase
+    //     .from('Users')
+    //     .insert([{ id: user.id, email: email.value, name: name.value, address: address.value, phone: phone.value}]);
 
-      if (insertError) {
-        throw new Error(insertError.message);
-      }
-    } else if (existingUser.length > 1) {
-      // Handle the case where multiple rows are returned (should not happen if `id` is unique)
-      throw new Error('Multiple users found with the same ID');
-    }
+    //   if (insertError) {
+    //     throw new Error(insertError.message);
+    //   }
+    // } else if (existingUser.length > 1) {
+    //   // Handle the case where multiple rows are returned (should not happen if `id` is unique)
+    //   throw new Error('Multiple users found with the same ID');
+    // }
 
     // Check if the email and password are both 'Admin'
     if (email.value === 'admin@gmail.com' && password.value === 'admin') {

@@ -55,9 +55,6 @@
             
             <td>{{ User.name }}</td>
             <td>{{ User.email }}</td>
-            <!-- <td>{{ User.id }}</td> -->
-
-
             <td>{{ User.address }}</td>
             <td>{{ User.phone }}</td>
             <!-- <td>{{ User.course }}</td> -->

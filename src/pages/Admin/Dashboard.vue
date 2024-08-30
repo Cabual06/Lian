@@ -1,7 +1,12 @@
 <template>
     
     <Nav />
-     <h1>Dashboard</h1>
+    <v-container>
+        <v-container class="pb-6 pt-16 mt-8">
+            <h1 class="text-medium-emphasis"><span class="text-green">D</span>ashboard</h1> 
+        </v-container>
+        <dashInfo />
+    </v-container>
 </template>
 
 <script>

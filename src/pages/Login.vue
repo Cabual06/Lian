@@ -1,9 +1,9 @@
 <template>
   <div class="pt-16">
     <div class="text-center pt-16 pb-4">
-      <span class="text-h3 font-weight-bold">
-        <span class="text-h2 text-green font-weight-bold">T</span>ABULATION SYSTEM
-      </span>
+        <span class="text-h3 font-weight-bold">
+          <span class="text-h2 text-green font-weight-bold">T</span>ABULATION SYSTEM
+        </span>
     </div>
 
     <v-card
@@ -27,7 +27,7 @@
 
         <a
           class="text-caption text-decoration-none text-blue"
-          href="#"
+          href="/Recover"
           rel="noopener noreferrer"
           target="_blank"
         >
@@ -104,79 +104,6 @@
   </div>
 </template>
 
-<!-- <script>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'; 
-import { supabase } from '../clients/supabase';  
-
-export default {
-  setup() {
-    const loading = ref(false);
-    const router = useRouter();
-    const visible = ref(false);
-    const email = ref('');
-    const password = ref('');
-    const error = ref('');
-    const success = ref('');
-
-    const login = async () => {
-      loading.value = true;
-
-      try {
-        // Sign in with email and password
-        const { data, error: loginError } = await supabase.auth.signInWithPassword({
-          email: email.value,
-          password: password.value,
-        });
-
-        if (loginError) {
-          throw new Error(loginError.message);
-        }
-
-        // Access user ID from the response
-        const user = data.user;
-
-        if (!user) {
-          throw new Error('User not found in the response');
-        }
-
-        console.log('User ID:', user.id); // Debugging line
-
-        // Check if the email and password are both 'Admin'
-        if (email.value === 'admin@gmail.com' && password.value === 'admin') {
-          // Redirect to Admin Dashboard
-          router.push('/Admin/Dashboard');
-        } else {
-          // Redirect to VotingForm for other users
-          router.push('/Users/VotingForm');
-          console.log('The user ID is', user.id); // Debugging line
-        }
-
-        success.value = 'Login successful!';
-        error.value = '';
-        console.log('Login successful:', data);
-      } catch (err) {
-        error.value = err.message;
-        success.value = '';
-        console.log('Login error:', err.message);
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    return {
-      email,
-      password,
-      error,
-      success,
-      login,
-      visible,
-      loading,
-    };
-  },
-};
-</script> -->
-
 
 <script>
 import { ref } from 'vue';
@@ -190,9 +117,6 @@ export default {
     const visible = ref(false);
     const email = ref('');
     const password = ref('');
-    const name = ref('');
-    const address = ref('');
-    const phone = ref('');
     const error = ref('');
     const success = ref('');
 
@@ -230,19 +154,6 @@ export default {
       throw new Error(fetchError.message);
     }
 
-    // if (existingUser.length === 0) {
-    //   // Insert new user record if not found
-    //   const { error: insertError } = await supabase
-    //     .from('Users')
-    //     .insert([{ id: user.id, email: email.value, name: name.value, address: address.value, phone: phone.value}]);
-
-    //   if (insertError) {
-    //     throw new Error(insertError.message);
-    //   }
-    // } else if (existingUser.length > 1) {
-    //   // Handle the case where multiple rows are returned (should not happen if `id` is unique)
-    //   throw new Error('Multiple users found with the same ID');
-    // }
 
     // Check if the email and password are both 'Admin'
     if (email.value === 'admin@gmail.com' && password.value === 'admin') {

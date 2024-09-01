@@ -21,3 +21,7 @@ import index from './pages/index'
     }
   }
 </script>
+
+<style>
+
+</style>

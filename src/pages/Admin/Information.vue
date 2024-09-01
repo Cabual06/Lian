@@ -23,7 +23,7 @@
                         <v-card-title></v-card-title>
                         <h1 class="text-green">{{ card.title }}</h1><br>
                         <p>{{ card.description }}</p><br>
-                        <img width="150px" :src="card.icon" alt="No image found">
+                        <img width="160px" class="ml-14" :src="card.icon" alt="No image found">
                     </v-card-item>
                 </v-card>
             </v-container>
@@ -41,11 +41,12 @@
         data(){
             return{
                 cards:[
-                    {icon:'../src/assets/vue.png', title:'Vue Js', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
-                    {icon:'../src/assets/vue.png', title:'Vuetify', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
-                    {icon:'../src/assets/vue.png', title:'SupaBase', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
-                    {icon:'../src/assets/vue.png', title:'Axios', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
-                    {icon:'../src/assets/vue.png', title:'SMTP Server', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+                    {icon:'../src/assets/supabase.webp', title:'Vue Js', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+                    {icon:'../src/assets/vuetify.webp', title:'Vuetify', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+                    {icon:'../src/assets/supabase.webp', title:'SupaBase', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+
+                    {icon:'../src/assets/gmail.png', title:'SMTP Server', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
+                    {icon:'../src/assets/Axios.svg', title:'Axios', description:'Vue Js is a JavaScript framework that provides a built in components that we can use.'},
                 ]
             }
         }

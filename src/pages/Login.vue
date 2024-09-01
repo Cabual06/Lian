@@ -11,6 +11,7 @@
       elevation="8"
       max-width="455"
       rounded="lg"
+
     >
       <div class="text-subtitle-1 text-medium-emphasis">Account</div>
 

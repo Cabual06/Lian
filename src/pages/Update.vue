@@ -1,8 +1,7 @@
 <template>
   <div class="pt-16">
     <div class="text-center pt-16">
-      <h1>Update your Password</h1><br>
-
+      <h1>Update your Password</h1>
       <p>Please enter your new password to confirm your changes.</p>
     </div>
 

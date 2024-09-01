@@ -1,7 +1,7 @@
 <template>
     <div class="pt-16">
       <div class="text-center pt-16">
-        <h1>Recover Password</h1><br>
+        <h1>Recover Password</h1>
         <p>You'll receive an email to recover your password</p>
       </div>
   
@@ -53,7 +53,7 @@
         </v-btn>
   
         <v-card-text class="text-center">
-          <a
+          <!-- <a
             class="text-blue text-decoration-none"
             href="#"
             rel="noopener noreferrer"
@@ -63,7 +63,7 @@
               Login
               <v-icon icon="mdi-chevron-right"></v-icon>
             </RouterLink>
-          </a>
+          </a> -->
         </v-card-text>
   
         <v-progress-linear
@@ -119,7 +119,7 @@
   };
   </script>
   
-  <style scoped>
+  <style lang="scss" scoped>
   .error-message .v-card-text {
     color: #000000;
   }

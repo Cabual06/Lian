@@ -19,5 +19,5 @@ import Home from '../pages/Home'
 </script>
 
 <style scoped>
-
+    
 </style>

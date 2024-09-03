@@ -355,7 +355,15 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/lib/supabaseClient'; // Ensure this path is correct
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
 
+
+
+// Toast
+const $toast = useToast();
+// let success = $toast.success('Candidate Added Successfully');
+// let error = $toast.error('Candidate was deleted')
 
 // State for search
 const search = ref('');
@@ -467,7 +475,10 @@ async function saveCandidate() {
 
     if (error) throw error;
 
-    alert('Candidate added successfully!');
+    $toast.success('Candidate Added Successfully!',{
+      position: 'bottom-right',
+      duration: 8000
+    });
     fetchPageData();
     showCandidateDialog.value = false;
   } catch (error) {
@@ -577,7 +588,11 @@ async function deleteCandidate(id) {
       console.error('Error deleting candidate:', error.message);
       return;
     }else{
-      alert('Candidate deleted successfully');
+      // alert('Candidate deleted successfully');
+      $toast.error('Candidate deleted Successfully!',{
+        position: 'bottom-right',
+        duration: 8000
+      })
       fetchPageData();
     }
     // // Refresh data after deletion
@@ -607,8 +622,8 @@ async function deleteCandidate(id) {
 async function resetCandidates() {
   try {
     // Confirm the action with the user
-    const confirmed = confirm('Are you sure you want to delete all candidates? This action cannot be undone.');
-    if (!confirmed) return; // Exit if the user cancels
+    // const confirmed = confirm('Are you sure you want to delete all candidates? This action cannot be undone.');
+    // if (!confirmed) return; // Exit if the user cancels
 
     // Fetch all candidate IDs
     const { data: candidates, error: fetchError } = await supabase
@@ -629,7 +644,10 @@ async function resetCandidates() {
 
       if (deleteError) throw deleteError;
 
-      alert('All candidates have been deleted successfully!');
+      $toast.success('Candidates deleted successfully',{
+        position: 'bottom-right',
+        duration: 8000
+      })
       fetchPageData(); // Refresh the candidates data
     } else {
       alert('No candidates found to delete.');
@@ -666,7 +684,10 @@ async function resetCandidates() {
 
     if (error) throw error;
     
-    alert('Round deleted successfully');
+    $toast.error('Round and Criterias deleted Successfully!',{
+      position: 'bottom-right',
+      duration: 8000
+      })
     // Refresh the rounds data
     fetchPageDataRounds();
   } catch (error) {
@@ -684,7 +705,11 @@ async function resetCandidates() {
     if (newRound.value.criteria.length < 5) {
       newRound.value.criteria.push({ criteriaName: '', percentage: 20 });
     } else {
-      alert('You can only add up to 5 criteria.');
+      // alert('You can only add up to 5 criteria.');
+      $toast.warning('You can only add up to 5 criteria',{
+        position: 'bottom-right',
+        duration: 8000
+      })
     }
   }
   // Remove a criteria field
@@ -765,7 +790,10 @@ async function resetCandidates() {
       return;
     }
 
-    alert("Round and associated data added successfully!");
+    $toast.success('Round and associated data added successfully!',{
+      position: 'bottom-right',
+      duration: 8000
+      })
     fetchPageDataRounds(); // Refresh the rounds data
     showDialog.value = false; // Close the dialog
   } catch (error) {

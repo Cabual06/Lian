@@ -2,7 +2,7 @@
     <div class="pt-16">
       <div class="text-center pt-16">
         <h1>Recover Password</h1>
-        <p>You'll receive an email to recover your password</p>
+        <p>You'll receive an email to recover your password</p><br>
       </div>
   
       <v-card

@@ -2,7 +2,7 @@
     <div class="pt-8">
   
       <div class="text-center pt-16 pb-2">
-        <span class="text-h3 font-weight-bold"><span class="text-h2 text-green font-weight-bold">T</span>ABULATION SYSTEM</span>
+        <span class="text-h3 font-weight-bold"><span class="text-h2 text-green font-weight-bold">C</span>REATE AN ACCOUNT</span>
       </div>
   
       <v-card
@@ -126,9 +126,13 @@
   <script>
 import { ref } from 'vue';
 import { supabase } from '../clients/supabase';  // Ensure the path is correct
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
 
 export default {
   setup() {
+
+    const $toast = useToast();
     const loading = ref(false);
     const name = ref('');
     const email = ref('');
@@ -184,7 +188,12 @@ export default {
         return;
       }
 
-      success.value = 'SignUp Successful! Please verify your email.';
+      // success.value = 'SignUp Successful!.';
+      $toast.success('Signup Success, Please Verify your email',{
+        position: 'bottom-right',
+        duration: 8000,
+        dismissible: true,
+      })
       error.value = '';
       loading.value = false;
 

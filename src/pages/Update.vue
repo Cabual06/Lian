@@ -2,7 +2,7 @@
   <div class="pt-16">
     <div class="text-center pt-16">
       <h1>Update your Password</h1>
-      <p>Please enter your new password to confirm your changes.</p>
+      <p>Please enter your new password to confirm the changes.</p><br>
     </div>
 
     <v-card
@@ -44,10 +44,7 @@
       </v-btn>
 
       <v-card-text class="text-center">
-        <RouterLink to="/Login" class="text-decoration-none">
-          Login
-          <v-icon icon="mdi-chevron-right"></v-icon>
-        </RouterLink>
+
       </v-card-text>
 
       <v-progress-linear

@@ -62,9 +62,12 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; 
 import { supabase } from '../clients/supabase';  
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
 
 export default {
   setup() {
+    const $toast = useToast();
     const visible = ref(false);
     const loading = ref(false);
     const router = useRouter();
@@ -85,7 +88,11 @@ export default {
           throw new Error(updateError.message);
         }
 
-        success.value = 'Password updated successfully!';
+        $toast.success('Password Updated Successfully!',{
+            position: 'bottom-right',
+            duration: 8000,
+            dismissible: true,
+          })
         error.value = '';
         
         // Optionally, redirect the user after successful password update

@@ -80,9 +80,12 @@
   <script>
   import { ref } from 'vue';
   import { supabase } from '../clients/supabase';  
+  import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
   
   export default {
     setup() {
+      const $toast = useToast();
       const loading = ref(false);
       const email = ref('');
       const error = ref('');
@@ -99,6 +102,11 @@
           }
   
           success.value = 'Password recovery email sent!';
+          $toast.success('Please check your email',{
+            position: 'bottom-right',
+            duration: 8000,
+            dismissible: true,
+          })
           error.value = '';
         } catch (err) {
           error.value = err.message;

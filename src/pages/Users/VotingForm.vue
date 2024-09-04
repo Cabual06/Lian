@@ -90,13 +90,18 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { supabase } from '@/lib/supabaseClient'; // Ensure this path is correct
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
 
+const $toast = useToast();
 const rounds = ref([]);
 const scoreOptions = ref([2, 4, 6, 8, 10, 12, 14, 16, 18, 20]); // Example score options
 
 const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
 const submitted = ref(false); // Add a reactive variable to track if scores have been submitted
+
+
 
 async function getCurrentUserId() {
   try {
@@ -121,6 +126,15 @@ async function fetchRounds() {
       .select('id, name');
 
     if (roundError) throw new Error(roundError.message);
+
+    if (roundData.length === 0) {
+      isMatchRounds.value = true; 
+      return;
+    }
+
+    // Processing rounds data...
+    isMatchRounds.value = false; 
+
 
     const roundsWithCriteria = await Promise.all(roundData.map(async (round) => {
       const { data: criteriaData, error: criteriaError } = await supabase
@@ -226,7 +240,11 @@ async function submitScores() {
     });
 
     if (scoresToSubmit.length === 0) {
-      alert('No scores to submit. Please choose your score.');
+      $toast.error('No scores, Please choose your score to submit',{
+        position: 'bottom-right',
+        duration: 8000,
+        dismissible: true,
+      })
       return;
     }
 
@@ -236,7 +254,11 @@ async function submitScores() {
 
     if (error) throw new Error(error.message);
 
-    alert('Scores submitted successfully');
+    $toast.success('Scores submitted Successfully',{
+        position: 'bottom-right',
+        duration: 8000,
+        dismissible: true,
+      })
     submitted.value = true;
     localStorage.setItem('scoresSubmitted', 'true');
   } catch (error) {

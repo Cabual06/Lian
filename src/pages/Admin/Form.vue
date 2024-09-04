@@ -589,7 +589,7 @@ async function deleteCandidate(id) {
       return;
     }else{
       // alert('Candidate deleted successfully');
-      $toast.error('Candidate deleted Successfully!',{
+      $toast.info('Candidate deleted Successfully!',{
         position: 'bottom-right',
         duration: 8000
       })
@@ -644,7 +644,7 @@ async function resetCandidates() {
 
       if (deleteError) throw deleteError;
 
-      $toast.success('Candidates deleted successfully',{
+      $toast.info('All Candidates deleted successfully',{
         position: 'bottom-right',
         duration: 8000
       })
@@ -684,7 +684,7 @@ async function resetCandidates() {
 
     if (error) throw error;
     
-    $toast.error('Round and Criterias deleted Successfully!',{
+    $toast.info('Round and Criterias deleted Successfully!',{
       position: 'bottom-right',
       duration: 8000
       })

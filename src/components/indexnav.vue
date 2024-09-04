@@ -41,8 +41,8 @@
 
                 <v-list class="bg-black">
                     <v-list-item>
-                        <v-list-item-title><RouterLink to="/User/PresidentPage"><v-btn class="bg-black">President</v-btn></RouterLink></v-list-item-title>
-                        <v-list-item-title><RouterLink to="/User/VicePresidentPage"><v-btn class="bg-black">Vice President</v-btn></RouterLink></v-list-item-title>
+                        <v-list-item-title><RouterLink to="/User/PresidentPage"><v-btn class="bg-black">Male</v-btn></RouterLink></v-list-item-title>
+                        <v-list-item-title><RouterLink to="/User/VicePresidentPage"><v-btn class="bg-black">Female</v-btn></RouterLink></v-list-item-title>
                         <!-- <v-list-item-title><v-btn class="bg-black">Gold Lane</v-btn></v-list-item-title>
                         <v-list-item-title><v-btn class="bg-black">Mage</v-btn></v-list-item-title>
                         <v-list-item-title><v-btn class="bg-black">Roamer</v-btn></v-list-item-title> -->

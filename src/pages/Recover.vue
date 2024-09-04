@@ -103,7 +103,7 @@ import 'vue-toast-notification/dist/theme-bootstrap.css';
   
           success.value = 'Password recovery email sent!';
           $toast.success('Please check your email',{
-            position: 'bottom-right',
+            position: 'top',
             duration: 8000,
             dismissible: true,
           })

@@ -100,7 +100,7 @@
       ></v-progress-linear>   
   
       <v-empty-state
-        class="mt-16 pt-16"
+        class="mt-10 pt-10"
         v-if="isMatch"
         icon="mdi-magnify"
         text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
@@ -200,7 +200,7 @@
     ></v-progress-linear>
 
     <v-empty-state
-      class="mt-16 pt-16"
+      class="mt-10 pt-10"
       v-if="isMatchRounds"
       icon="mdi-magnify"
       text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
@@ -454,10 +454,11 @@ async function fetchPageData() {
     roundAvailable.value = false; 
     serverItems.value = data;
     console.log('Server items:', serverItems.value); // Log the data to ensure it's being fetched correctly
-
     totalItems.value = count;
+    
   } catch (error) {
     console.error('Error fetching data:', error.message);
+    roundAvailable.value = false; 
     isMatch.value = true;
   } finally {
     isLoading.value = false;

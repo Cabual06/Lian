@@ -89,7 +89,7 @@ export default {
         }
 
         $toast.success('Password Updated Successfully!',{
-            position: 'bottom-right',
+            position: 'top',
             duration: 8000,
             dismissible: true,
           })

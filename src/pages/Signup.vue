@@ -1,12 +1,12 @@
 <template>
     <div class="pt-8">
   
-      <div class="text-center pt-16 pb-2">
-        <span class="text-h3 font-weight-bold"><span class="text-h2 text-green font-weight-bold">C</span>REATE AN ACCOUNT</span>
+      <div class="text-center pt-16 mt-12 pb-2">
+        <span class="text-h3 font-weight-bold"><span class="text-h2 text-green font-weight-bold">C</span>REATE ACCOUNT</span>
       </div>
   
       <v-card
-        class="mx-auto pa-12 pb-8 mt-14"
+        class="mx-auto pa-12 pb-8 mt-10"
         elevation="8"
         max-width="455"
         rounded="lg"
@@ -153,7 +153,10 @@ export default {
       });
 
       if (signupError) {
-        error.value = signupError.message;
+        $toast.error(signupError.message,{
+          position: 'top',
+          duration: 8000,
+        })
         success.value = '';
         loading.value = false;
         return;
@@ -162,7 +165,10 @@ export default {
       // Ensure we have the user ID (UUID)
       const userId = authData?.user?.id;
       if (!userId) {
-        error.value = 'User ID not returned after signup';
+        $toast.error('User ID not returned after signup',{
+          position: 'top',
+          duration: 8000,
+        })
         loading.value = false;
         return;
       }
@@ -182,7 +188,10 @@ export default {
 
       if (dbError) {
         console.log('Database Insert Error:', dbError);
-        error.value = dbError.message;
+        $toast.error(dbError.message,{
+          position: 'top',
+          duration: 8000,
+        })
         success.value = '';
         loading.value = false;
         return;
@@ -190,7 +199,7 @@ export default {
 
       // success.value = 'SignUp Successful!.';
       $toast.success('Signup Success, Please Verify your email',{
-        position: 'bottom-right',
+        position: 'top',
         duration: 8000,
         dismissible: true,
       })

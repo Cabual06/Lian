@@ -170,7 +170,7 @@ export default {
 
       $toast.success('Login Success',{
         position: 'top',
-        duration: 8000,
+        duration: 4000,
         dismissible: true,
       })
       error.value = '';
@@ -179,7 +179,7 @@ export default {
 
       $toast.error(err.message,{
         position: 'top',
-        duration: 8000,
+        duration: 4000,
         dismissible: true,
       })
       success.value = '';

@@ -80,9 +80,9 @@
     <v-empty-state
       class="mt-16 pt-16"
       v-if="isMatchRounds"
-      icon="mdi-magnify"
+      icon="mdi mdi-file-document-alert-outline"
       text="Contact the Administrator or Restart your Connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
-      title="No Rounds and Criterias availabe."
+      title="No Tabulation form Available."
     ></v-empty-state>
   </v-container>
 </template>

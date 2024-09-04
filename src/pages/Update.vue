@@ -1,6 +1,6 @@
 <template>
   <div class="pt-16">
-    <div class="text-center pt-16">
+    <div class="text-center pt-16 mt-10">
       <h1>Update your Password</h1>
       <p>Please enter your new password to confirm the changes.</p><br>
     </div>
@@ -98,7 +98,11 @@ export default {
         // Optionally, redirect the user after successful password update
         router.push('/Login');
       } catch (err) {
-        error.value = err.message;
+        $toast.error(err.message,{
+            position: 'top',
+            duration: 8000,
+            dismissible: true,
+          })
         success.value = '';
         console.log('Password update error:', err.message);
       } finally {

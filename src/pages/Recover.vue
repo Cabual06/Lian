@@ -1,6 +1,6 @@
 <template>
     <div class="pt-16">
-      <div class="text-center pt-16">
+      <div class="text-center pt-16 mt-10">
         <h1>Recover Password</h1>
         <p>You'll receive an email to recover your password</p><br>
       </div>
@@ -109,7 +109,11 @@ import 'vue-toast-notification/dist/theme-bootstrap.css';
           })
           error.value = '';
         } catch (err) {
-          error.value = err.message;
+          $toast.error(err.message,{
+            position: 'top',
+            duration: 8000,
+            dismissible: true,
+          })
           console.log('Password recovery error:', err.message);
         } finally {
           loading.value = false;

@@ -81,8 +81,8 @@
       class="mt-16 pt-16"
       v-if="isMatchRounds"
       icon="mdi-magnify"
-      text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
-      title="We couldn't fetch data from Database."
+      text="Contact the Administrator or Restart your Connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
+      title="No Rounds and Criterias availabe."
     ></v-empty-state>
   </v-container>
 </template>

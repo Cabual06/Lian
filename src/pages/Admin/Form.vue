@@ -106,6 +106,13 @@
         text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
         title="We couldn't fetch data from Database."
       ></v-empty-state>
+
+      <v-empty-state
+        class="mt-6 pt-6"
+        v-if="roundAvailable"
+        text="No Candidates Available, Please Create a Candidate."
+        title="No Candidates."
+      ></v-empty-state>
     </v-container>
 
 
@@ -357,8 +364,7 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/lib/supabaseClient'; // Ensure this path is correct
 import {useToast} from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
-
-
+import { watchEffect } from 'vue';
 
 // Toast
 const $toast = useToast();
@@ -373,6 +379,7 @@ const page = ref(1);
 const itemsPerPage = ref(10);
 const serverItems = ref([]);
 const totalItems = ref(0);
+const roundAvailable = ref(false);
 
 // Pagination state for rounds
 const pageRounds = ref(1);
@@ -430,6 +437,14 @@ async function fetchPageData() {
 
     if (error) throw new Error(error.message);
 
+    if (data.length === 0) {
+      roundAvailable.value = true; 
+      return;
+    }
+
+    // Processing rounds data...
+    isMatchRounds.value = false; 
+    roundAvailable.value = false; 
     serverItems.value = data;
     console.log('Server items:', serverItems.value); // Log the data to ensure it's being fetched correctly
 
@@ -579,25 +594,29 @@ onMounted(() => {
 
 // Function to delete a candidate
 async function deleteCandidate(id) {
-    const { error } = await supabase
-      .from('Contestants')
-      .delete()
-      .match({ id });
-  
-    if (error) {
-      console.error('Error deleting candidate:', error.message);
-      return;
-    }else{
-      // alert('Candidate deleted successfully');
-      $toast.info('Candidate deleted Successfully!',{
-        position: 'bottom-right',
-        duration: 8000
-      })
-      fetchPageData();
+    try {
+        const { error } = await supabase
+            .from('Contestants')
+            .delete()
+            .match({ id });
+
+        if (error) {
+            console.error('Error deleting candidate:', error.message);
+            return;
+        }
+
+        // Remove the candidate from the local state immediately
+        serverItems.value = serverItems.value.filter(candidate => candidate.id !== id);
+
+        $toast.info('Candidate deleted Successfully!', {
+            position: 'bottom-right',
+            duration: 8000
+        });
+    } catch (error) {
+        console.error('Error deleting candidate:', error.message);
     }
-    // // Refresh data after deletion
-    // fetchPageData();
 }
+
 
 // Function to delete a single criterion
   async function deleteCriterion(criteriaId) {
@@ -621,52 +640,27 @@ async function deleteCandidate(id) {
 // Function to reset (delete all) candidates
 async function resetCandidates() {
   try {
-    // Confirm the action with the user
-    // const confirmed = confirm('Are you sure you want to delete all candidates? This action cannot be undone.');
-    // if (!confirmed) return; // Exit if the user cancels
+    // Show a confirmation dialog before proceeding
+    const confirmed = window.confirm("Are you sure you want to delete all candidates?");
+    if (!confirmed) return;
 
-    // Fetch all candidate IDs
-    const { data: candidates, error: fetchError } = await supabase
-      .from('Contestants')
-      .select('id');
+    // Deleting all candidates from the 'Contestants' table
+    const { error } = await supabase.from('Contestants').delete().neq('id', 0);
 
-    if (fetchError) throw fetchError;
+    if (error) throw new Error(error.message);
 
-    // Proceed if there are candidates to delete
-    if (candidates.length > 0) {
-      const idsToDelete = candidates.map(candidate => candidate.id);
+    // Clear the serverItems array and update the roundAvailable state
+    $toast.info('All Candidates Deleted Successfully',{
+      position: 'bottom-right',
+      duration: 8000
+    })
+    serverItems.value = [];
+    roundAvailable.value = true;
 
-      // Batch delete candidates
-      const { error: deleteError } = await supabase
-        .from('Contestants')
-        .delete()
-        .in('id', idsToDelete);
-
-      if (deleteError) throw deleteError;
-
-      $toast.info('All Candidates deleted successfully',{
-        position: 'bottom-right',
-        duration: 8000
-      })
-      fetchPageData(); // Refresh the candidates data
-    } else {
-      alert('No candidates found to delete.');
-    }
   } catch (error) {
     console.error('Error deleting all candidates:', error.message);
-    alert('Failed to delete all candidates. Please try again.');
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -813,5 +807,13 @@ async function resetCandidates() {
   });
 
   console.log('Server items for select:', serverItems.value.map(c => ({ text: c.name, value: c.id })));
+
+  watchEffect(() => {
+  if (serverItems.value.length === 0) {
+    roundAvailable.value = true;
+  } else {
+    roundAvailable.value = false;
+  }
+});
 
 </script>

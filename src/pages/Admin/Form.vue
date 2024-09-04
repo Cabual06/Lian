@@ -190,22 +190,29 @@
     </tbody>
   </v-data-table-server>
 
-  <!-- Progress and Empty State Components -->
-  <v-progress-linear
-    v-if="isLoadingRounds"
-    color="green"
-    height="6"
-    indeterminate
-    rounded
-  ></v-progress-linear>
+    <!-- Progress and Empty State Components -->
+    <v-progress-linear
+      v-if="isLoadingRounds"
+      color="green"
+      height="6"
+      indeterminate
+      rounded
+    ></v-progress-linear>
 
-  <v-empty-state
-    class="mt-16 pt-16"
-    v-if="isMatchRounds"
-    icon="mdi-magnify"
-    text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
-    title="We couldn't fetch data from Database."
-  ></v-empty-state>
+    <v-empty-state
+      class="mt-16 pt-16"
+      v-if="isMatchRounds"
+      icon="mdi-magnify"
+      text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
+      title="We couldn't fetch data from Database."
+    ></v-empty-state>
+
+    <v-empty-state
+      class="mt-6 pt-6"
+      v-if="roundAvailable"
+      text="No Rounds Available, Please Create a Round and Criteria's."
+      title="No Rounds."
+    ></v-empty-state>
 </v-container>
 
 

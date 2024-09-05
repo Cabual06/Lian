@@ -209,7 +209,7 @@
 
     <v-empty-state
       class="mt-6 pt-6"
-      v-if="roundAvailable"
+      v-if="criteriaAvailable"
       text="No Rounds Available, Please Create a Round and Criteria's."
       title="No Rounds."
     ></v-empty-state>
@@ -387,6 +387,7 @@ const itemsPerPage = ref(10);
 const serverItems = ref([]);
 const totalItems = ref(0);
 const roundAvailable = ref(false);
+const criteriaAvailable = ref(false);
 
 // Pagination state for rounds
 const pageRounds = ref(1);
@@ -530,13 +531,17 @@ async function fetchPageDataRounds() {
       `, { count: 'exact' })
       .range((pageRounds.value - 1) * itemsPerPageRounds.value, pageRounds.value * itemsPerPageRounds.value - 1);
 
+
+    if (data.length === 0) {
+      criteriaAvailable.value = true; 
+      return;
+    }
+
     if (error) {
       console.error('Error fetching rounds data:', error.message);
       isMatchRounds.value = true;
       return;
     }
-
-    console.log('Fetched rounds data:', data);
 
     // Flatten data to make each criterion its own entry
     const flattenedData = data.flatMap(round => 
@@ -549,6 +554,7 @@ async function fetchPageDataRounds() {
       }))
     );
 
+    criteriaAvailable.value = false; 
     serverItemsRounds.value = flattenedData;
     totalItemsRounds.value = count;
   } catch (error) {
@@ -686,6 +692,9 @@ async function resetCandidates() {
 
     if (error) throw error;
     
+    // Remove the candidate from the local state immediately
+    serverItemsRounds.value = serverItemsRounds.value.filter(round => round.roundId !== id);
+
     $toast.info('Round and Criterias deleted Successfully!',{
       position: 'bottom-right',
       duration: 8000

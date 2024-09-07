@@ -436,6 +436,7 @@ const isMatchRounds = ref(false);
 // Fetch data for candidates
 async function fetchPageData() {
   isLoading.value = true;
+  roundAvailable.value = false; 
   try {
     const { data, error, count } = await supabase
       .from('Contestants')
@@ -452,7 +453,6 @@ async function fetchPageData() {
 
     // Processing rounds data...
     isMatchRounds.value = false; 
-    roundAvailable.value = false; 
     serverItems.value = data;
     console.log('Server items:', serverItems.value); // Log the data to ensure it's being fetched correctly
     totalItems.value = count;
@@ -824,6 +824,7 @@ async function resetCandidates() {
   });
 
   console.log('Server items for select:', serverItems.value.map(c => ({ text: c.name, value: c.id })));
+
 
   watchEffect(() => {
   if (serverItems.value.length === 0) {

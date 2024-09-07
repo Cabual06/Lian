@@ -60,7 +60,7 @@
             <th class="text-left text-green">Address</th>
             <th class="text-left text-green">Age</th>
             <th class="text-left text-green">Course</th>
-            <th class="text-center text-green">Photo</th>
+            <th class="text-center text-green">Gender</th>
             <th class="text-center text-green">Action</th>
             </tr>
         </thead>
@@ -70,8 +70,8 @@
             <td>{{ Contestant.name }}</td>
             <td>{{ Contestant.address }}</td>
             <td>{{ Contestant.age }} Yrs old</td>
-            <td>{{ Contestant.course }}</td>
-            <td>{{ Contestant.photo }}</td>
+            <td class="text-left">{{ Contestant.course }}</td>
+            <td class="text-center">{{ Contestant.gender }}</td>
             <!-- <td><v-img :src="Contestant.photo"></v-img></td> -->
             <td class="text-center">
                 <v-btn variant="tonal" size="small" class="ma-2" color="primary">
@@ -245,6 +245,14 @@
               required
             ></v-text-field>
 
+
+            <v-select
+              variant="outlined"
+              v-model="newCandidate.gender"
+              label="Gender"
+              :items="candidateGender"
+            ></v-select>
+
             <v-text-field
               variant="outlined"
               label="Address"
@@ -375,8 +383,6 @@ import { watchEffect } from 'vue';
 
 // Toast
 const $toast = useToast();
-// let success = $toast.success('Candidate Added Successfully');
-// let error = $toast.error('Candidate was deleted')
 
 // State for search
 const search = ref('');
@@ -388,6 +394,8 @@ const serverItems = ref([]);
 const totalItems = ref(0);
 const roundAvailable = ref(false);
 const criteriaAvailable = ref(false);
+const candidateGender = ref(["Male", "Female"]);
+
 
 // Pagination state for rounds
 const pageRounds = ref(1);
@@ -395,7 +403,6 @@ const itemsPerPageRounds = ref(10);
 const serverItemsRounds = ref([]);
 const totalItemsRounds = ref(0);
 const selectedRoundId = ref(null);
-
 
 
 
@@ -418,6 +425,7 @@ const newCandidate = ref({
   address: '',
   age: '',
   course: '',
+  gender: '',
   // roundId: '' // Add this field
 });
 
@@ -440,7 +448,7 @@ async function fetchPageData() {
   try {
     const { data, error, count } = await supabase
       .from('Contestants')
-      .select('id, name, age, course, address, photo', { count: 'exact' })
+      .select('id, name, age, course, address, photo, gender', { count: 'exact' })
       .range((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value - 1)
       .ilike('name', `%${search.value}%`);
 
@@ -494,6 +502,7 @@ async function saveCandidate() {
         address: newCandidate.value.address,
         age: age, // Use the numeric age
         course: newCandidate.value.course,
+        gender: newCandidate.value.gender, // Use the selected gender
         // Round_id: roundId // Ensure you have a field for Round_id
       });
 

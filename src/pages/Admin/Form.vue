@@ -720,12 +720,17 @@ async function resetCandidates() {
 // Add criteria logic
 function addCriteria() {
   // Calculate the current total percentage
-  const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + c.percentage, 0);
+  const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
+
+  console.log("Total Percentage before adding:", totalPercentage); // Log the total percentage before adding a new criteria
+  
+  const tolerance = 0.01;
 
   // Check if adding another 20% would exceed 100%
-  if (newRound.value.criteria.length < 5 && totalPercentage + 20 <= 100) {
+  if (newRound.value.criteria.length < 5 && totalPercentage + 20 <= 100 + tolerance) {
     // Add a new criterion with a default percentage of 20
     newRound.value.criteria.push({ criteriaName: '', percentage: 20 });
+    console.log("Added new criteria. Total Percentage now:", newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0)); // Log after addition
   } else if (newRound.value.criteria.length >= 5) {
     // Show warning if criteria limit is reached
     $toast.warning('You can only add up to 5 criteria', {
@@ -741,21 +746,19 @@ function addCriteria() {
   }
 }
 
-// Remove a criteria field
-function removeCriteria(index) {
-  newRound.value.criteria.splice(index, 1);
-}
-
-// Watcher function to ensure total percentage does not exceed 100 during user updates
 function updatePercentage(index, newPercentage) {
   // Temporarily update the specified criterion's percentage for validation
   const tempCriteria = [...newRound.value.criteria];
   tempCriteria[index].percentage = newPercentage;
 
   // Calculate the new total percentage
-  const totalPercentage = tempCriteria.reduce((sum, c) => sum + c.percentage, 0);
+  const totalPercentage = tempCriteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
 
-  if (totalPercentage <= 100) {
+  console.log("Total Percentage during update:", totalPercentage); // Log the total during updates
+  
+  const tolerance = 0.01;
+
+  if (totalPercentage <= 100 + tolerance) {
     // Update if within limit
     newRound.value.criteria[index].percentage = newPercentage;
   } else {
@@ -768,14 +771,17 @@ function updatePercentage(index, newPercentage) {
 }
 
 // Save Round
-// Save Round
 async function saveRound() {
   try {
     // Calculate the total percentage of all criteria
-    const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + c.percentage, 0);
+    const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
+
+    console.log("Total Percentage during save:", totalPercentage); // Log the total percentage before saving
+
+    const tolerance = 0.01;
 
     // Check if the total percentage exceeds 100%
-    if (totalPercentage > 100) {
+    if (totalPercentage > 100 + tolerance) {
       // Show error message if the total percentage exceeds 100%
       $toast.error('The total percentage cannot exceed 100%', {
         position: 'bottom-right',
@@ -838,14 +844,14 @@ async function saveRound() {
       return;
     }
 
-    // Insert criteria
+    // Insert criteria, ensuring percentages are integers
     const criteriaPromises = newRound.value.criteria.map(criterion => {
       return supabase
         .from('Criteria')
         .insert({
           criteriaName: criterion.criteriaName,
           Round_id: roundId,
-          percentage: parseFloat(criterion.percentage)
+          percentage: Math.round(criterion.percentage) // Round percentage before inserting
         });
     });
 
@@ -870,6 +876,9 @@ async function saveRound() {
     alert('An unexpected error occurred. Please try again.');
   }
 }
+
+
+
 
 
 

@@ -336,7 +336,7 @@
                 label="Percentage"
                 type="number"
                 min="20"
-                max="20"
+                max="100 - getTotalPercentage(index)"
                 required
               ></v-text-field>
             </v-col>
@@ -716,34 +716,81 @@ async function resetCandidates() {
   }
 
 
+  
+// Add criteria logic
+function addCriteria() {
+  // Calculate the current total percentage
+  const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + c.percentage, 0);
 
+  // Check if adding another 20% would exceed 100%
+  if (newRound.value.criteria.length < 5 && totalPercentage + 20 <= 100) {
+    // Add a new criterion with a default percentage of 20
+    newRound.value.criteria.push({ criteriaName: '', percentage: 20 });
+  } else if (newRound.value.criteria.length >= 5) {
+    // Show warning if criteria limit is reached
+    $toast.warning('You can only add up to 5 criteria', {
+      position: 'bottom-right',
+      duration: 8000,
+    });
+  } else {
+    // Show warning if adding 20% would exceed 100%
+    $toast.warning('Adding this criterion would exceed the 100% limit', {
+      position: 'bottom-right',
+      duration: 8000,
+    });
+  }
+}
 
+// Remove a criteria field
+function removeCriteria(index) {
+  newRound.value.criteria.splice(index, 1);
+}
 
+// Watcher function to ensure total percentage does not exceed 100 during user updates
+function updatePercentage(index, newPercentage) {
+  // Temporarily update the specified criterion's percentage for validation
+  const tempCriteria = [...newRound.value.criteria];
+  tempCriteria[index].percentage = newPercentage;
 
-  // Add a new criteria field
-  function addCriteria() {
-    if (newRound.value.criteria.length < 5) {
-      newRound.value.criteria.push({ criteriaName: '', percentage: 20 });
-    } else {
-      // alert('You can only add up to 5 criteria.');
-      $toast.warning('You can only add up to 5 criteria',{
+  // Calculate the new total percentage
+  const totalPercentage = tempCriteria.reduce((sum, c) => sum + c.percentage, 0);
+
+  if (totalPercentage <= 100) {
+    // Update if within limit
+    newRound.value.criteria[index].percentage = newPercentage;
+  } else {
+    // Show warning if updating would exceed 100
+    $toast.warning('The total percentage cannot exceed 100%', {
+      position: 'bottom-right',
+      duration: 8000,
+    });
+  }
+}
+
+// Save Round
+// Save Round
+async function saveRound() {
+  try {
+    // Calculate the total percentage of all criteria
+    const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + c.percentage, 0);
+
+    // Check if the total percentage exceeds 100%
+    if (totalPercentage > 100) {
+      // Show error message if the total percentage exceeds 100%
+      $toast.error('The total percentage cannot exceed 100%', {
         position: 'bottom-right',
         duration: 8000
-      })
+      });
+      
+      // Reset criteria and percentages to prevent invalid state
+      newRound.value.criteria = []; // Reset the criteria array
+      newRound.value.roundName = ''; // Optionally reset round name
+      newRound.value.roundId = ''; // Optionally reset round ID
+      newRound.value.candidateInput = ''; // Optionally reset candidate input
+
+      return; // Prevent saving the round and allow the user to start over
     }
-  }
-  // Remove a criteria field
-  function removeCriteria(index) {
-    newRound.value.criteria.splice(index, 1);
-  }
-  
 
-
-
-
-  // Save Round
-  async function saveRound() {
-  try {
     // Convert IDs to numbers
     const roundId = parseInt(newRound.value.roundId, 10);
     if (isNaN(roundId)) {
@@ -810,12 +857,14 @@ async function resetCandidates() {
       return;
     }
 
-    $toast.success('Round and associated data added successfully!',{
+    $toast.success('Round and associated data added successfully!', {
       position: 'bottom-right',
       duration: 8000
-      })
-    fetchPageDataRounds(); // Refresh the rounds data
-    showDialog.value = false; // Close the dialog
+    });
+
+    // Refresh the rounds data and close the dialog
+    fetchPageDataRounds();
+    showDialog.value = false;
   } catch (error) {
     console.error('Unexpected error:', error.message);
     alert('An unexpected error occurred. Please try again.');

@@ -158,7 +158,6 @@ export default {
         throw new Error(fetchError.message);
       }
 
-
       // Check if the email and password are both 'Admin'
       if (email.value === 'admin@gmail.com' && password.value === 'admin') {
         // Redirect to Admin Dashboard

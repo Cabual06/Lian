@@ -25,8 +25,8 @@
 
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
-                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalItems }}</h1>
-                    <p>Total Votes</p>
+                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalVotes }}</h1>
+                    <p>Scores Submitted</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -56,6 +56,7 @@ export default {
     setup() {
         const serverItems = ref([]);
         const totalItems = ref(0);
+        const totalVotes = ref(0);
         const totalCandidates = ref(0);
         const isLoading = ref(false);
         const isMatch = ref(false);
@@ -89,7 +90,7 @@ export default {
             fetchPageData();
         });
 
-        return { serverItems, totalItems, totalCandidates, isLoading, isMatch };
+        return { serverItems, totalItems, totalVotes, totalCandidates, isLoading, isMatch };
     }
 };
 </script>

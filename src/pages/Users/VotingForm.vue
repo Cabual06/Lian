@@ -108,12 +108,14 @@ async function getCurrentUserId() {
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error) throw new Error(error.message);
     if (!user) throw new Error('No authenticated user found');
-    return user.id; // Assuming this is the ID that corresponds to `Users.id`
+    return user.id; // This should be a UUID
   } catch (error) {
     console.error('Error getting user:', error.message);
     return null;
   }
 }
+
+
 
 async function fetchRounds() {
   isLoadingRounds.value = true;
@@ -221,6 +223,18 @@ async function submitScores() {
     const userId = await getCurrentUserId();
     if (!userId) throw new Error('User is not authenticated');
 
+    // Check if the user exists in the Users table
+    const { data: userData, error: userError } = await supabase
+      .from('Users')
+      .select('id')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !userData) {
+      // If the user does not exist in the Users table, throw an error
+      throw new Error('User not found in the Users table');
+    }
+
     const scoresToSubmit = [];
 
     rounds.value.forEach(round => {
@@ -230,7 +244,7 @@ async function submitScores() {
             scoresToSubmit.push({
               Contestants_id: String(item.candidateId),
               Criteria_id: Number(criteriaId),
-              Users_id: String(userId),
+              Users_id: String(userId),  // Ensure using the correct userId
               Round_id: String(round.id),
               Score: Number(score)
             });
@@ -265,6 +279,8 @@ async function submitScores() {
     alert('Error submitting scores: ' + error.message);
   }
 }
+
+
 
 
 

@@ -51,11 +51,11 @@
                 </v-menu>
 
                 <v-menu open-on-hover>
-                <template v-slot:activator="{ props }">
+                <!-- <template v-slot:activator="{ props }">
                     <v-btn color="green" v-bind="props">
                         Categories
                     </v-btn>
-                </template>
+                </template> -->
                 </v-menu>
 
                 <v-menu open-on-hover>

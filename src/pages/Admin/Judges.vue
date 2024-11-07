@@ -144,6 +144,10 @@ async function fetchPageData() {
 // Delete User Function
 async function deletejudge(id) {
   try {
+
+    const confirmed = window.confirm("Are you sure you want the candidates?");
+    if (!confirmed) return;
+    
     const { error } = await supabase.from('Users').delete().match({ id });
     if (error) {
       console.error('Error deleting judge', error.message);

@@ -209,7 +209,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn variant="outlined" class="bg-black text-red mr-2 px-4 mb-4" @click="editDialog = false" text>Cancel</v-btn>
-        <v-btn variant="outlined" class="bg-black text-green px-6 mr-4 mb-4" @click="updateUser" text>Save</v-btn>
+        <v-btn variant="outlined" class="bg-black text-green px-6 mr-4 mb-4" @click="updateUser" text>Update</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -589,6 +589,41 @@ async function saveCandidate() {
   }
 }
 
+// Update the edited contestant in the database
+async function updateUser() {
+  try {
+    const { data, error } = await supabase
+      .from('Contestants')
+      .update({
+        name: editedContestant.value.name,
+        age: editedContestant.value.age,
+        address: editedContestant.value.address,
+        course: editedContestant.value.course,
+        gender: editedContestant.value.gender
+      })
+      .match({ id: editedContestant.value.id }); // Use the id to match the correct record
+
+    if (error) {
+      throw error;
+    }
+
+    // Provide feedback to the user
+    $toast.success('Candidate Updated Successfully!', {
+      position: 'bottom-right',
+      duration: 8000,
+    });
+
+    // Refresh the data
+    fetchPageData();
+    editDialog.value = false; // Close the edit dialog
+
+  } catch (error) {
+    console.error('Error updating candidate:', error.message);
+    alert('Failed to update candidate. Please try again.');
+  }
+}
+
+
 
 
 // Edit Candidate Function
@@ -693,6 +728,10 @@ onMounted(() => {
 // Function to delete a candidate
 async function deleteCandidate(id) {
     try {
+
+      const confirmed = window.confirm("Are you sure you want the candidates?");
+      if (!confirmed) return;
+
         const { error } = await supabase
             .from('Contestants')
             .delete()
@@ -759,10 +798,6 @@ async function resetCandidates() {
     console.error('Error deleting all candidates:', error.message);
   }
 }
-
-
-
-
 
 
 

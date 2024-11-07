@@ -74,9 +74,14 @@
             <td class="text-center">{{ Contestant.gender }}</td>
             <!-- <td><v-img :src="Contestant.photo"></v-img></td> -->
             <td class="text-center">
-                <v-btn variant="tonal" size="small" class="ma-2" color="primary">
+              <v-btn 
+                @click="editContestant(Contestant)"
+                variant="tonal" 
+                size="small" 
+                class="ma-2" 
+                color="primary">
                 Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
-                </v-btn>
+              </v-btn>
                 <v-btn 
                 variant="tonal" 
                 size="small" 
@@ -182,13 +187,33 @@
         <td>{{ item.percentage }} %</td>
         <td class="text-center">
           <v-btn variant="tonal" size="small" class="ma-2" color="primary">
-            Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
-          </v-btn>
+          Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
+        </v-btn>
           <!-- Remove this button from here -->
         </td>
       </tr>
     </tbody>
   </v-data-table-server>
+
+  <!-- For Editing Candidates -->
+  <v-dialog v-model="editDialog" max-width="570px">
+    <v-card class="bg-black rounded-lg px-6 py-4">
+      <v-card-title class="text-h4 text-green">Edit Candidate</v-card-title>
+      <v-card-text>
+        <v-text-field variant="outlined" v-model="editedContestant.name" label="Name"></v-text-field>
+        <v-text-field variant="outlined" v-model="editedContestant.age" label="Age"></v-text-field>
+        <v-text-field variant="outlined" v-model="editedContestant.address" label="Address"></v-text-field>
+        <v-text-field variant="outlined" v-model="editedContestant.course" label="Course"></v-text-field>
+        <v-select variant="outlined" v-model="editedContestant.gender" label="Gender"  :items="candidateGender"></v-select>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="outlined" class="bg-black text-red mr-2 px-4 mb-4" @click="editDialog = false" text>Cancel</v-btn>
+        <v-btn variant="outlined" class="bg-black text-green px-6 mr-4 mb-4" @click="updateUser" text>Save</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 
     <!-- Progress and Empty State Components -->
     <v-progress-linear
@@ -217,20 +242,15 @@
 
 
 
-
-
-
-
-
     <!-- Dialog for adding a new candidate -->
-    <v-dialog v-model="showCandidateDialog" max-width="500">
+    <v-dialog v-model="showCandidateDialog" max-width="570">
       <v-card  class="bg-black rounded-lg">
         <v-card-title class="py-8 pl-12">
           <h1 class="text-h4 text-green">Add New Candidate</h1>
         </v-card-title>
         <v-card-subtitle class="pl-12">Enter the details for the new candidate</v-card-subtitle>
         <v-card-text>
-          <v-form class="px-4">
+          <v-form class="px-6">
             <v-text-field
               variant="outlined"
               v-model="newCandidate.id"
@@ -278,8 +298,8 @@
         </v-card-text>
         <v-card-actions class="mb-4 mr-8">
           <v-spacer></v-spacer>
-          <v-btn variant="outlined" @click="saveCandidate" class="bg-black text-green">Save Candidate</v-btn>
-          <v-btn variant="outlined" @click="showCandidateDialog = false" class="bg-black text-red ml-2">Cancel</v-btn>
+          <v-btn variant="outlined" @click="saveCandidate" class="bg-black text-green mb-2">Save Candidate</v-btn>
+          <v-btn variant="outlined" @click="showCandidateDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -287,7 +307,7 @@
 
 
 <!-- Dialog for adding a new round with multiple criteria -->
-<v-dialog v-model="showDialog" max-width="600">
+<v-dialog v-model="showDialog" max-width="570">
   <v-card class="bg-black rounded-lg">
     <v-card-title class="py-8 pl-12">
       <h1 class="text-h4 text-green">Create New Round</h1>
@@ -341,7 +361,7 @@
               ></v-text-field>
             </v-col>
             <v-col cols="13" md="4">
-              <v-btn variant="outlined" @click="removeCriteria(index)" class="bg-black text-red">Remove Criteria</v-btn>
+              <v-btn variant="outlined" @click="removeCriteria(index)" class="bg-black text-red mt-2">Remove</v-btn>
             </v-col>
           </v-row>
           <v-btn 
@@ -357,8 +377,8 @@
     </v-card-text>
     <v-card-actions class="mb-4 mr-10">
       <v-spacer></v-spacer>
-      <v-btn variant="outlined" @click="saveRound" class="bg-black text-green">Save Round</v-btn>
-      <v-btn variant="outlined" @click="showDialog = false" class="bg-black text-red ml-2">Cancel</v-btn>
+      <v-btn variant="outlined" @click="saveRound" class="bg-black text-green mb-2">Save Round</v-btn>
+      <v-btn variant="outlined" @click="showDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
     </v-card-actions>
   </v-card>
 </v-dialog>
@@ -405,7 +425,6 @@ const totalItemsRounds = ref(0);
 const selectedRoundId = ref(null);
 
 
-
 // Dialog and form state
 const showDialog = ref(false);
 const newRound = ref({
@@ -430,15 +449,23 @@ const newCandidate = ref({
 });
 
 
+// Edit Dialog State
+const editDialog = ref(false);
+const editedContestant = ref({
+  id: null,
+  name: '',
+  age: '',
+  address: '',
+  course: '',
+  gender: '',
+});
+
+
 // Progress state
 const isMatch = ref(false);
 const isLoading = ref(true);
 const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
-
-
-
-
 
 
 // Fetch data for candidates
@@ -521,6 +548,11 @@ async function saveCandidate() {
 }
 
 
+// Edit Candidate Function
+function editContestant(contestant) {
+  editedContestant.value = { ...contestant };
+  editDialog.value = true;
+}
 
 
 
@@ -876,6 +908,13 @@ async function saveRound() {
     alert('An unexpected error occurred. Please try again.');
   }
 }
+
+// Remove criteria function
+function removeCriteria(index) {
+  // Use splice to remove the criterion at the specified index
+  newRound.value.criteria.splice(index, 1);
+}
+
 
 
   const uniqueRoundIds = computed(() => {

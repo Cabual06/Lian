@@ -243,66 +243,84 @@
 
 
     <!-- Dialog for adding a new candidate -->
-    <v-dialog v-model="showCandidateDialog" max-width="570">
-      <v-card  class="bg-black rounded-lg">
-        <v-card-title class="py-8 pl-12">
-          <h1 class="text-h4 text-green">Add New Candidate</h1>
-        </v-card-title>
-        <v-card-subtitle class="pl-12">Enter the details for the new candidate</v-card-subtitle>
-        <v-card-text>
-          <v-form class="px-6">
-            <v-text-field
-              variant="outlined"
-              v-model="newCandidate.id"
-              label="Candidate ID"
-              required
-            ></v-text-field>
+<v-dialog v-model="showCandidateDialog" max-width="570">
+  <v-card class="bg-black rounded-lg">
+    <v-card-title class="py-8 pl-12">
+      <h1 class="text-h4 text-green">Add New Candidate</h1>
+    </v-card-title>
+    <v-card-subtitle class="pl-12">Enter the details for the new candidate</v-card-subtitle>
+    <v-card-text>
+      <v-form class="px-6">
+        <v-text-field
+          variant="outlined"
+          v-model="newCandidate.id"
+          label="Candidate ID"
+          required
+        ></v-text-field>
 
-            <v-text-field
-              variant="outlined"
-              v-model="newCandidate.name"
-              label="Name"
-              required
-            ></v-text-field>
+        <v-text-field
+          variant="outlined"
+          v-model="newCandidate.name"
+          label="Name"
+          required
+        ></v-text-field>
 
+        <v-select
+          variant="outlined"
+          v-model="newCandidate.gender"
+          label="Gender"
+          :items="candidateGender"
+        ></v-select>
 
-            <v-select
-              variant="outlined"
-              v-model="newCandidate.gender"
-              label="Gender"
-              :items="candidateGender"
-            ></v-select>
+        <v-text-field
+          variant="outlined"
+          label="Address"
+          v-model="newCandidate.address"
+          required
+        ></v-text-field>
 
-            <v-text-field
-              variant="outlined"
-              label="Address"
-              v-model="newCandidate.address"
-              required
-            ></v-text-field>
+        <v-text-field
+          variant="outlined"
+          v-model="newCandidate.age"
+          label="Age"
+          type="number"
+          required
+        ></v-text-field>
 
-            <v-text-field
-              variant="outlined"
-              v-model="newCandidate.age"
-              label="Age"
-              type="number"
-              required
-            ></v-text-field>
+        <v-text-field
+          variant="outlined"
+          v-model="newCandidate.course"
+          label="Course"
+          required
+        ></v-text-field>
 
-            <v-text-field
-              variant="outlined"
-              v-model="newCandidate.course"
-              label="Course"
-              required
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions class="mb-4 mr-8">
-          <v-spacer></v-spacer>
-          <v-btn variant="outlined" @click="saveCandidate" class="bg-black text-green mb-2">Save Candidate</v-btn>
-          <v-btn variant="outlined" @click="showCandidateDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+        <!-- New file input for the candidate's image -->
+        <v-file-input
+          variant="outlined"
+          v-model="newCandidate.photo"
+          label="Upload Candidate Photo"
+          accept="image/*"
+          required
+        ></v-file-input>
+
+        <!-- Optional preview of the uploaded image -->
+        <v-img
+          v-if="newCandidate.photo"
+          :src="newCandidate.photo"
+          max-width="150"
+          class="mt-4"
+        ></v-img>
+
+      </v-form>
+    </v-card-text>
+    <v-card-actions class="mb-4 mr-8">
+      <v-spacer></v-spacer>
+      <v-btn variant="outlined" @click="saveCandidate" class="bg-black text-green mb-2">Save Candidate</v-btn>
+      <v-btn variant="outlined" @click="showCandidateDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
 
 
 
@@ -468,6 +486,10 @@ const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
 
 
+// Bucket
+
+
+
 // Fetch data for candidates
 async function fetchPageData() {
   isLoading.value = true;
@@ -503,16 +525,11 @@ async function fetchPageData() {
 
 
 
-
-
-
 // Save Candidate
 async function saveCandidate() {
   try {
-    // Ensure id and roundId are numbers
+    // Ensure id is a number
     const candidateId = parseInt(newCandidate.value.id, 10);
-    const roundId = parseInt(newCandidate.value.roundId, 10);
-
     if (isNaN(candidateId)) {
       throw new Error('Candidate ID must be a number');
     }
@@ -520,24 +537,49 @@ async function saveCandidate() {
     // Convert age to number if necessary
     const age = parseInt(newCandidate.value.age, 10);
 
-    // Insert candidate data
+    let photoUrl = null;
+    
+    // Check if there's a photo to upload
+    if (newCandidate.value.photo) {
+      const file = newCandidate.value.photo;
+      const fileExt = file.name.split('.').pop();
+      const filePath = `candidates/${candidateId}.${fileExt}`;
+
+      // Upload image to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('candidate-photos') // ensure this matches your Supabase bucket
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get the public URL of the uploaded image
+      const { data: fileData, error: urlError } = await supabase.storage
+        .from('candidate-photos')
+        .getPublicUrl(filePath);
+
+      if (urlError) throw urlError;
+
+      photoUrl = fileData.publicUrl;
+    }
+
+    // Insert candidate data, including photo URL
     const { error } = await supabase
       .from('Contestants')
       .insert({
-        id: candidateId, // Use the numeric candidateId
+        id: candidateId,
         name: newCandidate.value.name,
         address: newCandidate.value.address,
-        age: age, // Use the numeric age
+        age: age,
         course: newCandidate.value.course,
-        gender: newCandidate.value.gender, // Use the selected gender
-        // Round_id: roundId // Ensure you have a field for Round_id
+        gender: newCandidate.value.gender,
+        photo: photoUrl, // Save the photo URL here
       });
 
     if (error) throw error;
 
-    $toast.success('Candidate Added Successfully!',{
+    $toast.success('Candidate Added Successfully!', {
       position: 'bottom-right',
-      duration: 8000
+      duration: 8000,
     });
     fetchPageData();
     showCandidateDialog.value = false;
@@ -546,6 +588,7 @@ async function saveCandidate() {
     alert('Failed to add candidate. Please try again.');
   }
 }
+
 
 
 // Edit Candidate Function

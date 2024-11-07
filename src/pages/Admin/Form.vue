@@ -832,7 +832,7 @@ function addCriteria() {
   // Calculate the current total percentage
   const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
 
-  console.log("Total Percentage before adding:", totalPercentage); // Log the total percentage before adding a new criteria
+  console.log("Total Percentage before adding:", totalPercentage); // 
   
   const tolerance = 0.01;
 
@@ -873,7 +873,7 @@ function updatePercentage(index, newPercentage) {
     newRound.value.criteria[index].percentage = newPercentage;
   } else {
     // Show warning if updating would exceed 100
-    $toast.warning('The total percentage cannot exceed 100%', {
+    $toast.warning('The total percentage cannot exceed to 100%', {
       position: 'bottom-right',
       duration: 8000,
     });

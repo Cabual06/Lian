@@ -1,7 +1,7 @@
 <template>
     <Nav />
     <v-container class="mt-16">
-        <h1>EYY KA MUNA</h1>
+        <h1>Scores</h1>
     </v-container>
 </template>
 

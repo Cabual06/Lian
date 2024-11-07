@@ -13,7 +13,7 @@
       <!-- Edit User Dialog -->
       <v-dialog v-model="editDialog" max-width="570px">
         <v-card class="bg-black rounded-lg px-6 py-4">
-          <v-card-title class="text-h4 text-green">Edit User</v-card-title>
+          <v-card-title class="text-h4 text-green">Edit Judge</v-card-title>
           <v-card-text>
             <v-text-field variant="outlined" v-model="editedUser.name" label="Name"></v-text-field>
             <v-text-field variant="outlined" v-model="editedUser.email" label="Email"></v-text-field>
@@ -22,8 +22,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="outlined" class="bg-black text-red mr-2 mb-4 px-4" text @click="editDialog = false">Cancel</v-btn>
-            <v-btn variant="outlined" class="bg-black text-green px-6 mr-5 mb-4" text @click="updateUser">Save</v-btn>
+            <v-btn variant="outlined" class="bg-black text-red mr-2 mb-4 px-6" text @click="editDialog = false">Cancel</v-btn>
+            <v-btn variant="outlined" class="bg-black text-green px-6 mr-5 mb-4" text @click="updateUser">Update</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -147,7 +147,7 @@ async function deletejudge(id) {
 
     const confirmed = window.confirm("Are you sure you want the candidates?");
     if (!confirmed) return;
-    
+
     const { error } = await supabase.from('Users').delete().match({ id });
     if (error) {
       console.error('Error deleting judge', error.message);

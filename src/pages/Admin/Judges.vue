@@ -5,9 +5,9 @@
       <v-container class="d-flex pb-6 pt-16 mt-6">
         <h1 class="text-medium-emphasis"><span class="text-green">J</span>udges</h1>
         <v-spacer></v-spacer>
-        <v-btn to="" variant="tonal" class="ma-2 z-index" color="green">
+        <!-- <v-btn to="" variant="tonal" class="ma-2 z-index" color="green">
           Add Judge<v-icon icon="mdi-plus" end></v-icon>
-        </v-btn>
+        </v-btn> -->
       </v-container>
 
       <!-- Edit User Dialog -->

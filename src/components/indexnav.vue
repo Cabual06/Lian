@@ -60,7 +60,7 @@
 
                 <v-menu open-on-hover>
                 <template v-slot:activator="{ props }">
-                        <RouterLink to="/User/Vote"><v-btn color="green" v-bind="props">Print</v-btn></RouterLink>
+                        <!-- <RouterLink to="/User/Vote"><v-btn color="green" v-bind="props">Print</v-btn></RouterLink> -->
                 </template>
                 </v-menu>
             </div>

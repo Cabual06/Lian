@@ -56,7 +56,7 @@
         v-if="isMatchRounds"
         icon="mdi mdi-file-document-alert-outline"
         text="Contact the Administrator or Restart your Connections."
-        title="No Tabulation form Available."
+        title="No Tabulation set by the Admin."
       ></v-empty-state>
     </v-container>
   </template>

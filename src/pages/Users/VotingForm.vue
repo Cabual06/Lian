@@ -2,7 +2,7 @@
   <Indexnav />
   <v-container>
     <v-container class="d-flex pb-2 pt-2">
-      <h1 class="text-medium-emphasis"><span class="text-green">R</span>ounds</h1>
+      <h1 class="text-medium-emphasis"><span class="text-green"> </span></h1>
       <v-spacer></v-spacer>
       <v-btn
         variant="tonal"
@@ -14,19 +14,19 @@
         Submit Score<v-icon icon="mdi mdi-check" end></v-icon>
       </v-btn>
 
-      <v-btn
+      <!-- <v-btn
         variant="tonal"
         class="ma-2 z-index"
         color="red"
         @click="resetSubmissionState"
       >
         Reset Submission<v-icon icon="mdi mdi-refresh" end></v-icon>
-      </v-btn>
+      </v-btn> -->
     </v-container>
 
     <div v-for="round in rounds" :key="round.id">
       <h1 class="text-medium-emphasis mt-8 mb-10">{{ round.name }}</h1>
-      <v-data-table-server
+      <v-table
         v-model:items-per-page="round.itemsPerPage"
         :items="round.items"
         :items-length="round.totalItems"
@@ -66,7 +66,7 @@
             </td>
           </tr>
         </tbody>
-      </v-data-table-server>
+      </v-table>
     </div>
 
     <v-progress-linear

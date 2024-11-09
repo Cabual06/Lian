@@ -4,6 +4,7 @@
 
     <!-- FOR CANDIDATES -->
     <v-container>
+      
       <v-container class="d-flex pb-6 pt-16 mt-6">
         <h1 class="text-medium-emphasis"><span class="text-green">C</span>andidates</h1> 
   

@@ -36,8 +36,8 @@
 
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
-                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalItems }}</h1>
-                    <p>Ranking</p>
+                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalRounds }}</h1>
+                    <p>No. of Rounds</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -58,6 +58,7 @@ export default {
         const totalItems = ref(0);
         const totalVotes = ref(0);
         const totalCandidates = ref(0);
+        const totalRounds = ref(0);
         const isLoading = ref(false);
         const isMatch = ref(false);
 
@@ -78,6 +79,13 @@ export default {
                 if (error) throw new Error(error.message);
                 totalCandidates.value = count;
 
+                // Fetch total number of Rounds
+                ({ count, error } = await supabase
+                    .from('Round')
+                    .select('*', { count: 'exact', head: true }));
+                if (error) throw new Error(error.message);
+                totalRounds.value = count;      
+
             } catch (error) {
                 console.error('Error fetching data:', error.message);
                 isMatch.value = true;
@@ -90,7 +98,7 @@ export default {
             fetchPageData();
         });
 
-        return { serverItems, totalItems, totalVotes, totalCandidates, isLoading, isMatch };
+        return { serverItems, totalItems, totalVotes, totalCandidates, totalRounds, isLoading, isMatch };
     }
 };
 </script>

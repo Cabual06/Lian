@@ -158,28 +158,29 @@
 
   <!-- The Data Table -->
   <v-data-table-server
-    v-model:items-per-page="itemsPerPageRounds"
-    :items="serverItemsRounds"
-    :items-length="totalItemsRounds"
-    :page.sync="pageRounds"
-    fixed-header
-    theme="dark rounded opacity-100"
-    class="bg-transparent border-sm"
-    @update:page="handlePageUpdateRounds"
-    @update:items-per-page="handleItemsPerPageUpdateRounds"
-  >
-    <thead class="opacity-60">
+  v-model:items-per-page="itemsPerPageRounds"
+  :items="serverItemsRounds"
+  :items-length="totalItemsRounds"
+  :page.sync="pageRounds"
+  fixed-header
+  theme="dark rounded opacity-100"
+  class="bg-transparent border-sm"
+  @update:page="handlePageUpdateRounds"
+  @update:items-per-page="handleItemsPerPageUpdateRounds"
+>
+  <thead class="opacity-60">
+    <tr>
+      <th class="text-left text-green">Round ID</th>
+      <th class="text-left text-green">Round Name</th>
+      <th class="text-left text-green">Criteria ID</th>
+      <th class="text-left text-green">Criteria Name</th>
+      <th class="text-left text-green">Percentage</th>
+      <th class="text-center text-green">Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <template v-for="(item, index) in serverItemsRounds" :key="item.criteriaId">
       <tr>
-        <th class="text-left text-green">Round ID</th>
-        <th class="text-left text-green">Round Name</th>
-        <th class="text-left text-green">Criteria ID</th>
-        <th class="text-left text-green">Criteria Name</th>
-        <th class="text-left text-green">Percentage</th>
-        <th class="text-center text-green">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="item in serverItemsRounds" :key="item.roundId">
         <td>{{ item.roundId }}</td>
         <td>{{ item.roundName }}</td>
         <td>{{ item.criteriaId }}</td>
@@ -187,13 +188,21 @@
         <td>{{ item.percentage }} %</td>
         <td class="text-center">
           <v-btn variant="tonal" size="small" class="ma-2" color="primary">
-          Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
-        </v-btn>
-          <!-- Remove this button from here -->
+            Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
+          </v-btn>
         </td>
       </tr>
-    </tbody>
-  </v-data-table-server>
+      <!-- Display total row only after the last criterion for each round -->
+      <tr v-if="index === lastIndexByRound[item.roundId]">
+        <td colspan="4" class="text-right font-weight-bold text-green">Total Percentage for {{ totalPercentageByRound[item.roundId].roundName }}:</td>
+        <td class="font-weight-bold">{{ totalPercentageByRound[item.roundId].totalPercentage }} %</td>
+        <td></td>
+      </tr>
+    </template>
+  </tbody>
+</v-data-table-server>
+
+
 
   <!-- For Editing Candidates -->
   <v-dialog v-model="editDialog" max-width="570px">
@@ -422,7 +431,7 @@ import { watchEffect } from 'vue';
 // Toast
 const $toast = useToast();
 
-// State for search
+// For search
 const search = ref('');
 
 // Pagination state for candidates
@@ -486,7 +495,42 @@ const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
 
 
-// Bucket
+
+// Computed property for total percentage
+const totalPercentageByRound = computed(() => {
+  // Group criteria by roundId and calculate total percentage for each round
+  return serverItemsRounds.value.reduce((acc, item) => {
+    if (!acc[item.roundId]) {
+      acc[item.roundId] = {
+        roundName: item.roundName,
+        totalPercentage: 0,
+      };
+    }
+    acc[item.roundId].totalPercentage += Math.round(item.percentage); // Round to ensure integers
+    return acc;
+  }, {});
+});
+
+// Last row Percentage
+const lastIndexByRound = computed(() => {
+  const lastIndex = {};
+  serverItemsRounds.value.forEach((item, index) => {
+    lastIndex[item.roundId] = index;  // Update the index for each roundId
+  });
+  return lastIndex;
+});
+
+
+// Pagination updates
+function handlePageUpdateRounds(newPage) {
+  pageRounds.value = newPage;
+  fetchPageDataRounds();
+}
+
+function handleItemsPerPageUpdateRounds(newItemsPerPage) {
+  itemsPerPageRounds.value = newItemsPerPage;
+  fetchPageDataRounds();
+}
 
 
 
@@ -633,9 +677,6 @@ function editContestant(contestant) {
 }
 
 
-
-
-
   
 // Fetch data for rounds
 async function fetchPageDataRounds() {
@@ -685,12 +726,6 @@ async function fetchPageDataRounds() {
 }
 
 
-
-
-
-
-
-
 // Handle page and items-per-page updates
 function handlePageUpdate(newPage) {
     page.value = newPage;
@@ -717,11 +752,6 @@ onMounted(() => {
   fetchPageData();
   fetchPageDataRounds();
 });
-
-
-
-
-
 
 
 

@@ -827,6 +827,10 @@ async function resetCandidates() {
   // Delete Round
   async function deleteRound(id) {
   try {
+
+    const confirmed = window.confirm("Are you sure you want to the Round?");
+    if (!confirmed) return;
+
     const { error } = await supabase
       .from('Round') // Ensure this matches your table name
       .delete()

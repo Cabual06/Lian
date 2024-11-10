@@ -44,7 +44,9 @@
               <td class="text-center" v-for="criteria in round.criteria" :key="criteria.id">
                 {{ item.criteriaMap[criteria.id] || 'No Score' }}
               </td>
-              <td class="text-center">{{ calculateTotalScore(item, round) }}</td>
+              <td class="text-center" :class="{ 'text-green': calculateTotalScore(item, round) === getHighestScore(round) }">
+                {{ calculateTotalScore(item, round) }}
+              </td>
             </tr>
           </tbody>
         </v-table>
@@ -159,7 +161,7 @@
         const item = {
           candidateId: String(contestant.id),
           candidateName: contestant.name || 'Unknown',
-          roundName: contestant.Round[0]?.name || 'No Round',
+          roundName: contestant.Round[0]?.name || 'Not Qualify',
           criteriaMap: round.scoresMap[contestant.id] || {}
         };
         return item;
@@ -223,6 +225,11 @@
       alert('Error submitting scores: ' + error.message);
     }
   }
+
+  function getHighestScore(round) {
+  return Math.max(...round.items.map(item => calculateTotalScore(item, round)));
+  }
+
   
   function resetSubmissionState() {
     submitted.value = false;

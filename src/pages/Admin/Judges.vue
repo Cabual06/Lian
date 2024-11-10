@@ -115,7 +115,7 @@ const editedUser = ref({
 // Search, Pagination, and Loading States
 const search = ref('');
 const page = ref(1);
-const itemsPerPage = ref(25);
+const itemsPerPage = ref(10);
 const serverItems = ref([]);
 const totalItems = ref(0);
 const isMatch = ref(false);

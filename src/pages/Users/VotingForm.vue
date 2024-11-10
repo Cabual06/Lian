@@ -163,24 +163,30 @@ async function fetchPageData(roundId) {
 
   try {
     const { data, error, count } = await supabase
-      .from('Contestants')
-      .select('id, name, Round(name)', { count: 'exact' })
-      .eq('Round.id', roundId)
+      .from('ContestantRound')
+      .select('Contestants(id, name), Round(id)')
+      .eq('Round_id', roundId)
       .range((round.page - 1) * round.itemsPerPage, round.page * round.itemsPerPage - 1);
+
     if (error) throw new Error(error.message);
 
-    round.items = data.map(contestant => ({
-      candidateId: String(contestant.id),
-      candidateName: contestant.name || 'Unknown',
-      roundName: contestant.Round[0]?.name || 'No Round',
-      criteriaMap: {} // Initialize with empty criteriaMap
-    }));
+    round.items = data
+    .map(({ Contestants }) => ({
+      candidateId: String(Contestants.id),
+      candidateName: Contestants.name || 'Unknown',
+      roundName: round.name,
+      criteriaMap: {}
+    }))
+    .sort((a, b) => a.candidateId - b.candidateId); 
+
     round.totalItems = count;
     saveScoresToLocal(); // Save initial scores for fetched data
   } catch (error) {
     console.error(`Error fetching data for round ${roundId}:`, error.message);
   }
 }
+
+
 
 // Submit scores to Supabase
 async function submitScores() {
@@ -200,7 +206,7 @@ async function submitScores() {
   });
 
   if (scoresToSubmit.length === 0) {
-    $toast.error('No scores to submit');
+    $toast.error('Please choose a scores to submit');
     return;
   }
 

@@ -416,7 +416,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
-import { supabase } from '@/lib/supabaseClient'; // Ensure this path is correct
+import { supabase } from '@/lib/supabaseClient'; 
 import {useToast} from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
 import { watchEffect } from 'vue';
@@ -450,9 +450,9 @@ const showDialog = ref(false);
 const newRound = ref({
   roundId: '',
   roundName: '',
-  candidateInput: '', // New field for candidate input
-  candidateIds: [], // This will be populated based on candidateInput
-  criteria: [{ criteriaName: '', percentage: 20 }] // Default criteria
+  candidateInput: '', 
+  candidateIds: [], 
+  criteria: [{ criteriaName: '', percentage: 20 }] 
 });
 
 
@@ -465,7 +465,6 @@ const newCandidate = ref({
   age: '',
   course: '',
   gender: '',
-  // roundId: '' // Add this field
 });
 
 
@@ -499,7 +498,7 @@ const totalPercentageByRound = computed(() => {
         totalPercentage: 0,
       };
     }
-    acc[item.roundId].totalPercentage += Math.round(item.percentage); // Round to ensure integers
+    acc[item.roundId].totalPercentage += Math.round(item.percentage); 
     return acc;
   }, {});
 });
@@ -508,7 +507,7 @@ const totalPercentageByRound = computed(() => {
 const lastIndexByRound = computed(() => {
   const lastIndex = {};
   serverItemsRounds.value.forEach((item, index) => {
-    lastIndex[item.roundId] = index;  // Update the index for each roundId
+    lastIndex[item.roundId] = index; 
   });
   return lastIndex;
 });
@@ -548,7 +547,7 @@ async function fetchPageData() {
     // Processing rounds data...
     isMatchRounds.value = false; 
     serverItems.value = data;
-    console.log('Server items:', serverItems.value); // Log the data to ensure it's being fetched correctly
+    console.log('Server items:', serverItems.value); 
     totalItems.value = count;
     
   } catch (error) {
@@ -584,7 +583,7 @@ async function saveCandidate() {
 
       // Upload image to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('candidate-photos') // ensure this matches your Supabase bucket
+        .from('candidate-photos') 
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
@@ -609,7 +608,7 @@ async function saveCandidate() {
         age: age,
         course: newCandidate.value.course,
         gender: newCandidate.value.gender,
-        photo: photoUrl, // Save the photo URL here
+        photo: photoUrl, 
       });
 
     if (error) throw error;
@@ -638,7 +637,7 @@ async function updateUser() {
         course: editedContestant.value.course,
         gender: editedContestant.value.gender
       })
-      .match({ id: editedContestant.value.id }); // Use the id to match the correct record
+      .match({ id: editedContestant.value.id }); 
 
     if (error) {
       throw error;
@@ -652,7 +651,7 @@ async function updateUser() {
 
     // Refresh the data
     fetchPageData();
-    editDialog.value = false; // Close the edit dialog
+    editDialog.value = false; 
 
   } catch (error) {
     console.error('Error updating candidate:', error.message);
@@ -782,9 +781,9 @@ async function deleteCandidate(id) {
   async function deleteCriterion(criteriaId) {
     try {
       const { error } = await supabase
-        .from('Criteria') // Ensure this matches your criteria table name
+        .from('Criteria') 
         .delete()
-        .match({ id: criteriaId }); // Match by the specific criteria ID
+        .match({ id: criteriaId }); 
       if (error) throw error;
       // Optionally, log success or show a message
       alert('Criterion deleted successfully');
@@ -832,9 +831,9 @@ async function resetCandidates() {
     if (!confirmed) return;
 
     const { error } = await supabase
-      .from('Round') // Ensure this matches your table name
+      .from('Round') 
       .delete()
-      .match({ id }); // Match by the specific ID to delete
+      .match({ id }); 
 
     if (error) throw error;
     
@@ -891,7 +890,7 @@ function updatePercentage(index, newPercentage) {
   // Calculate the new total percentage
   const totalPercentage = tempCriteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
 
-  console.log("Total Percentage during update:", totalPercentage); // Log the total during updates
+  console.log("Total Percentage during update:", totalPercentage); 
   
   const tolerance = 0.01;
 
@@ -913,7 +912,7 @@ async function saveRound() {
     // Calculate the total percentage of all criteria
     const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
 
-    console.log("Total Percentage during save:", totalPercentage); // Log the total percentage before saving
+    console.log("Total Percentage during save:", totalPercentage); 
 
     const tolerance = 0.01;
 

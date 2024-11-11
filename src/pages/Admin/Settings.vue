@@ -51,15 +51,27 @@
           </tbody>
         </v-table>
       </div>
-  
-      <v-progress-linear v-if="isLoadingRounds" color="green" height="6" indeterminate rounded></v-progress-linear>
-      <v-empty-state
-        class="mt-16 pt-16"
-        v-if="isMatchRounds"
-        icon="mdi mdi-file-document-alert-outline"
-        text="Contact the Administrator or Restart your Connections."
-        title="No Tabulation set by the Admin."
-      ></v-empty-state>
+
+      <v-container
+        class="d-flex justify-center align-center"
+        style="min-height: 75vh;"
+      >
+        <v-progress-circular
+          v-if="isLoadingRounds"
+          color="green"
+          :size="60"
+          :width="7"
+          indeterminate
+        ></v-progress-circular>
+
+        <v-empty-state
+          class=""
+          v-else-if="isMatchRounds"
+          icon="mdi mdi-file-document-alert-outline"
+          text="Contact the Administrator or Restart your Connections."
+          title="No Tabulation set by the Admin."
+        ></v-empty-state>
+      </v-container>
     </v-container>
   </template>
   

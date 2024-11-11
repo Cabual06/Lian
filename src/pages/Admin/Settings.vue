@@ -27,13 +27,13 @@
         >
           <thead class="opacity-60">
             <tr>
-              <th class="text-left text-green">Candidate ID</th>
-              <th class="text-left text-green">Candidate Name</th>
-              <th class="text-left text-green">Round Name</th>
-              <th v-for="criteria in round.criteria" :key="criteria.id" class="text-center text-green">
+              <th class="text-left text-green font-weight-bold">Candidate ID</th>
+              <th class="text-left text-green font-weight-bold">Candidate Name</th>
+              <th class="text-left text-green font-weight-bold">Round Name</th>
+              <th v-for="criteria in round.criteria" :key="criteria.id" class="text-center text-green font-weight-bold">
                 {{ criteria.criteriaName }}
               </th>
-              <th class="text-center text-green">Total Scores</th>
+              <th class="text-center text-green font-weight-bold">Total Scores</th>
             </tr>
           </thead>
           <tbody>

@@ -56,13 +56,13 @@
         >
         <thead class="opacity-60">
             <tr>
-            <th class="text-left text-green">ID</th>
-            <th class="text-left text-green">Name</th>
-            <th class="text-left text-green">Address</th>
-            <th class="text-left text-green">Age</th>
-            <th class="text-left text-green">Course</th>
-            <th class="text-center text-green">Gender</th>
-            <th class="text-center text-green">Action</th>
+            <th class="text-left text-green font-weight-bold">ID</th>
+            <th class="text-left text-green font-weight-bold">Name</th>
+            <th class="text-left text-green font-weight-bold">Address</th>
+            <th class="text-left text-green font-weight-bold">Age</th>
+            <th class="text-left text-green font-weight-bold">Course</th>
+            <th class="text-center text-green font-weight-bold">Gender</th>
+            <th class="text-center text-green font-weight-bold">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -171,12 +171,12 @@
 >
   <thead class="opacity-60">
     <tr>
-      <th class="text-left text-green">Round ID</th>
-      <th class="text-left text-green">Round Name</th>
-      <th class="text-left text-green">Criteria ID</th>
-      <th class="text-left text-green">Criteria Name</th>
-      <th class="text-left text-green">Percentage</th>
-      <th class="text-center text-green">Action</th>
+      <th class="text-left text-green font-weight-bold">Round ID</th>
+      <th class="text-left text-green font-weight-bold">Round Name</th>
+      <th class="text-left text-green font-weight-bold">Criteria ID</th>
+      <th class="text-left text-green font-weight-bold">Criteria Name</th>
+      <th class="text-left text-green font-weight-bold">Percentage</th>
+      <th class="text-center text-green font-weight-bold">Action</th>
     </tr>
   </thead>
   <tbody>

@@ -54,15 +54,26 @@
       </v-table>
     </div>
 
-    <v-progress-linear v-if="isLoadingRounds" color="green" height="6" indeterminate rounded></v-progress-linear>
+    <v-container
+        class="d-flex justify-center align-center"
+        style="min-height: 75vh;"
+      >
+        <v-progress-circular
+          v-if="isLoadingRounds"
+          color="green"
+          :size="60"
+          :width="7"
+          indeterminate
+        ></v-progress-circular>
 
-    <v-empty-state
-      class="mt-16 pt-16"
-      v-if="isMatchRounds"
-      icon="mdi mdi-file-document-alert-outline"
-      text="Contact the Administrator or Restart your Connections."
-      title="No Tabulation form Available."
-    ></v-empty-state>
+        <v-empty-state
+          class=""
+          v-else-if="isMatchRounds"
+          icon="mdi mdi-file-document-alert-outline"
+          text="Contact the Administrator or Restart your Connections."
+          title="No Tabulation set by the Admin."
+        ></v-empty-state>
+      </v-container>
   </v-container>
 </template>
 
@@ -85,36 +96,30 @@ async function getCurrentUserId() {
   return user ? user.id : null;
 }
 
-// Save the current scores to local storage
-function saveScoresToLocal() {
-  const scores = rounds.value.map(round => ({
-    id: round.id,
-    items: round.items.map(item => ({
-      candidateId: item.candidateId,
-      criteriaMap: item.criteriaMap
-    }))
-  }));
-  console.log("Saving scores to localStorage:", scores); // Debugging line
-  localStorage.setItem('roundScores', JSON.stringify(scores));
-}
+// Load scores from the database and apply them to the rounds data
+async function loadScoresFromDatabase() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) throw new Error('User is not authenticated');
 
-// Load scores from local storage and apply them
-function loadScoresFromLocal() {
-  const savedScores = localStorage.getItem('roundScores');
-  if (savedScores) {
-    const scores = JSON.parse(savedScores);
-    console.log("Loading scores from localStorage:", scores); // Debugging line
-    scores.forEach(savedRound => {
-      const round = rounds.value.find(r => r.id === savedRound.id);
+    const { data: savedScores, error } = await supabase
+      .from('Score')
+      .select('Contestants_id, Criteria_id, Score, Round_id')
+      .eq('Users_id', userId);
+
+    if (error) throw new Error(error.message);
+
+    savedScores.forEach(savedScore => {
+      const round = rounds.value.find(r => r.id === savedScore.Round_id);
       if (round) {
-        savedRound.items.forEach(savedItem => {
-          const item = round.items.find(i => i.candidateId === savedItem.candidateId);
-          if (item) {
-            item.criteriaMap = { ...savedItem.criteriaMap };
-          }
-        });
+        const item = round.items.find(i => i.candidateId === String(savedScore.Contestants_id));
+        if (item) {
+          item.criteriaMap[savedScore.Criteria_id] = savedScore.Score;
+        }
       }
     });
+  } catch (error) {
+    console.error('Error loading scores from database:', error.message);
   }
 }
 
@@ -146,8 +151,8 @@ async function fetchRounds() {
     rounds.value = roundsWithCriteria;
     rounds.value.forEach(round => fetchPageData(round.id));
 
-    // Load saved scores after fetching rounds and items
-    loadScoresFromLocal();
+    // Load saved scores from the database after fetching rounds and items
+    await loadScoresFromDatabase();
   } catch (error) {
     console.error('Error fetching rounds:', error.message);
     isMatchRounds.value = true;
@@ -155,7 +160,6 @@ async function fetchRounds() {
     isLoadingRounds.value = false;
   }
 }
-
 
 async function fetchPageData(roundId) {
   const round = rounds.value.find(r => r.id === roundId);
@@ -170,23 +174,18 @@ async function fetchPageData(roundId) {
 
     if (error) throw new Error(error.message);
 
-    round.items = data
-    .map(({ Contestants }) => ({
+    round.items = data.map(({ Contestants }) => ({
       candidateId: String(Contestants.id),
       candidateName: Contestants.name || 'Unknown',
       roundName: round.name,
       criteriaMap: {}
-    }))
-    .sort((a, b) => a.candidateId - b.candidateId); 
+    })).sort((a, b) => a.candidateId - b.candidateId);
 
     round.totalItems = count;
-    saveScoresToLocal(); // Save initial scores for fetched data
   } catch (error) {
     console.error(`Error fetching data for round ${roundId}:`, error.message);
   }
 }
-
-
 
 // Submit scores to Supabase
 async function submitScores() {
@@ -206,7 +205,7 @@ async function submitScores() {
   });
 
   if (scoresToSubmit.length === 0) {
-    $toast.error('Please choose a scores to submit');
+    $toast.error('Please choose scores to submit');
     return;
   }
 
@@ -221,16 +220,15 @@ async function submitScores() {
   }
 }
 
-// Update local storage whenever a score is changed
+// Update score when a selection changes
 function handleScoreChange(roundId, candidateId, criteriaId) {
   console.log(`Score changed for candidate ${candidateId}, criteria ${criteriaId}`);
-  saveScoresToLocal(); // Save scores after every change
 }
 
 // Initialize on page load
 onMounted(() => {
   const storedSubmittedState = localStorage.getItem('scoresSubmitted');
   submitted.value = storedSubmittedState === 'true';
-  fetchRounds();
+  fetchRounds(); // This will now load rounds and scores from the database
 });
 </script>

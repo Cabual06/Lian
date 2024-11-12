@@ -243,10 +243,41 @@
   }
 
   
-  function resetSubmissionState() {
-    submitted.value = false;
-    localStorage.removeItem('scoresSubmitted');
+  async function resetSubmissionState() {
+    try {
+
+      const confirmed = window.confirm("Are you sure you want to Reset the scores?");
+      if (!confirmed) return;
+      // Delete all rows in the Score table
+      const { error } = await supabase.from('Score').delete().neq('id', 0); // Deleting all rows
+      
+      if (error) throw new Error(error.message);
+
+      // Reset state locally
+      submitted.value = false;
+      localStorage.removeItem('scoresSubmitted');
+      
+      // Refresh the rounds to reflect reset state
+      await fetchRounds();
+
+      // Display success notification
+      $toast.success('All scores have been reset successfully', {
+        position: 'bottom-right',
+        duration: 8000,
+        dismissible: true,
+      });
+    } catch (error) {
+      console.error('Error resetting scores:', error.message);
+
+      // Display error notification
+      $toast.error('Failed to reset scores: ' + error.message, {
+        position: 'bottom-right',
+        duration: 8000,
+        dismissible: true,
+      });
+    }
   }
+
   
   async function initialize() {
     await fetchRounds();

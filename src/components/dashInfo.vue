@@ -4,7 +4,7 @@
             <v-card variant="tonal" width="380px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalItems }}</h1>
-                    <p>Judges</p>
+                    <p>Registered Judges</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -15,7 +15,7 @@
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalCandidates }}</h1>
-                    <p>Candidates</p>
+                    <p>Total Candidates</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>

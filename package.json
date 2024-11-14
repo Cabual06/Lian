@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@mdi/font": "7.4.47",
-    "@supabase/supabase-js": "^2.45.1",
+    "@supabase/supabase-js": "^2.46.1",
+    "chart.js": "^4.4.6",
     "core-js": "^3.37.1",
     "nodemailer": "^6.9.14",
     "roboto-fontface": "*",

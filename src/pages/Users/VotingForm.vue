@@ -42,7 +42,7 @@
                 variant="plain"
                 class="text-blue pb-4"
                 style="width: 100px"
-                :items="scoreOptions"
+                :items="generateScoreOptions(criteria.percentage)"
                 v-model="item.criteriaMap[criteria.id]"
                 @change="handleScoreChange(round.id, item.candidateId, criteria.id)"
                 density="default"
@@ -54,26 +54,22 @@
       </v-table>
     </div>
 
-    <v-container
-        class="d-flex justify-center align-center"
-        style="min-height: 75vh;"
-      >
-        <v-progress-circular
-          v-if="isLoadingRounds"
-          color="green"
-          :size="60"
-          :width="7"
-          indeterminate
-        ></v-progress-circular>
+    <v-container class="d-flex justify-center align-center" style="min-height: 75vh;">
+      <v-progress-circular
+        v-if="isLoadingRounds"
+        color="green"
+        :size="60"
+        :width="7"
+        indeterminate
+      ></v-progress-circular>
 
-        <v-empty-state
-          class=""
-          v-else-if="isMatchRounds"
-          icon="mdi mdi-file-document-alert-outline"
-          text="Contact the Administrator or Restart your Connections."
-          title="No Tabulation set by the Admin."
-        ></v-empty-state>
-      </v-container>
+      <v-empty-state
+        v-else-if="isMatchRounds"
+        icon="mdi mdi-file-document-alert-outline"
+        text="Contact the Administrator or Restart your Connections."
+        title="No Tabulation set by the Admin."
+      ></v-empty-state>
+    </v-container>
   </v-container>
 </template>
 
@@ -85,10 +81,14 @@ import 'vue-toast-notification/dist/theme-bootstrap.css';
 
 const $toast = useToast();
 const rounds = ref([]);
-const scoreOptions = ref([2, 4, 6, 8, 10, 12, 14, 16, 18, 20]);
 const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
 const submitted = ref(false);
+
+// Function to generate score options based on the percentage of the criterion
+function generateScoreOptions(percentage) {
+  return Array.from({ length: percentage }, (_, i) => i + 1); // Range from 1 to 'percentage'
+}
 
 async function getCurrentUserId() {
   const { data: { user }, error } = await supabase.auth.getUser();
@@ -96,7 +96,6 @@ async function getCurrentUserId() {
   return user ? user.id : null;
 }
 
-// Load scores from the database and apply them to the rounds data
 async function loadScoresFromDatabase() {
   try {
     const userId = await getCurrentUserId();
@@ -123,7 +122,6 @@ async function loadScoresFromDatabase() {
   }
 }
 
-// Fetch rounds and criteria from Supabase
 async function fetchRounds() {
   isLoadingRounds.value = true;
   try {
@@ -140,7 +138,7 @@ async function fetchRounds() {
     const roundsWithCriteria = await Promise.all(roundData.map(async (round) => {
       const { data: criteriaData, error: criteriaError } = await supabase
         .from('Criteria')
-        .select('id, criteriaName')
+        .select('id, criteriaName, percentage')
         .eq('Round_id', round.id);
       if (criteriaError) throw new Error(criteriaError.message);
 
@@ -151,7 +149,6 @@ async function fetchRounds() {
     rounds.value = roundsWithCriteria;
     rounds.value.forEach(round => fetchPageData(round.id));
 
-    // Load saved scores from the database after fetching rounds and items
     await loadScoresFromDatabase();
   } catch (error) {
     console.error('Error fetching rounds:', error.message);
@@ -187,7 +184,6 @@ async function fetchPageData(roundId) {
   }
 }
 
-// Submit scores to Supabase
 async function submitScores() {
   const userId = await getCurrentUserId();
   if (!userId) throw new Error('User is not authenticated');
@@ -220,16 +216,13 @@ async function submitScores() {
   }
 }
 
-// Update score when a selection changes
 function handleScoreChange(roundId, candidateId, criteriaId) {
   console.log(`Score changed for candidate ${candidateId}, criteria ${criteriaId}`);
 }
 
-// Initialize on page load
 onMounted(() => {
   const storedSubmittedState = localStorage.getItem('scoresSubmitted');
   submitted.value = storedSubmittedState === 'true';
-  fetchRounds(); // This will now load rounds and scores from the database
+  fetchRounds();
 });
 </script>
-

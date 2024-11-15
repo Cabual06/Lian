@@ -53,7 +53,7 @@
                     {icon: 'mdi mdi-account-badge', text: 'Judges', route: '/Admin/Judges'},
                     // {icon: 'mdi mdi-account-supervisor-circle', text: 'Candidates', route: '/Admin/Candidates'},
                     {icon: 'mdi mdi-list-box-outline', text: 'Form', route: '/Admin/Form'},
-                    {icon: 'mdi mdi-cog', text: 'Scores', route: '/Admin/Settings'},
+                    {icon: 'mdi mdi-counter', text: 'Scores', route: '/Admin/Settings'},
                     {icon: 'mdi mdi-alert-circle', text: 'Information', route: '/Admin/Information'},
                 ]
             }

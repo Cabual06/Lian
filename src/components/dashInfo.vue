@@ -84,7 +84,9 @@ export default {
                     .from('Round')
                     .select('*', { count: 'exact', head: true }));
                 if (error) throw new Error(error.message);
-                totalRounds.value = count;      
+                totalRounds.value = count;    
+                
+                
 
             } catch (error) {
                 console.error('Error fetching data:', error.message);

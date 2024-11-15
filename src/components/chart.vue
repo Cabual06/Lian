@@ -1,7 +1,7 @@
 <template>
   <div>
     <canvas ref="chartCanvas"></canvas>
-    <!-- Optionally, show a message if no data is available -->
+    <!-- Show a message if no data is available -->
     <div v-if="!chartData.length" class="no-data-message">
       No data available for the chart.
     </div>
@@ -94,18 +94,18 @@ export default {
                 color: '#1F1F1F',
               },
               ticks:{
-                color: '#1F1F1F',
+                color: '#D3D3D3',
               },
-              title: { display: true, text: 'Contestants', color: '#62B965' },
+              title: { display: true, text: 'Contestants', color: '#FFFFFF' },
             },
             y: {
               grid:{
                 color: '#1F1F1F',
               },
               ticks:{
-                color: '#1F1F1F',
+                color: '#D3D3D3',
               },
-              title: { display: true, text: 'Total Score', color: '#62B965' },
+              title: { display: true, text: 'Total Score', color: '#FFFFFF' },
               beginAtZero: true 
             }
           },

@@ -84,16 +84,28 @@ export default {
             data: dataPoints.map(point => point.y), // Aggregated scores as y-values
             borderColor: '#FFFFFF',
             backgroundColor: '#62B969',
-            borderWidth: 1,
+            borderWidth: 2,
           }]
         },
         options: {
           scales: {
             x: {
-              title: { display: true, text: 'Contestants' }
+              grid:{
+                color: '#1F1F1F',
+              },
+              ticks:{
+                color: '#1F1F1F',
+              },
+              title: { display: true, text: 'Contestants', color: '#62B965' },
             },
             y: {
-              title: { display: true, text: 'Total Score' },
+              grid:{
+                color: '#1F1F1F',
+              },
+              ticks:{
+                color: '#1F1F1F',
+              },
+              title: { display: true, text: 'Total Score', color: '#62B965' },
               beginAtZero: true 
             }
           },
@@ -151,10 +163,8 @@ canvas {
   padding: 30px;
   border-radius: 5px;
   margin-top: 10px;
-  margin-left:;
   max-width: 99%;
   max-height: 650px; 
-
 }
 
 .no-data-message {

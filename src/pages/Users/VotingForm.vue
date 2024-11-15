@@ -232,3 +232,4 @@ onMounted(() => {
   fetchRounds(); // This will now load rounds and scores from the database
 });
 </script>
+

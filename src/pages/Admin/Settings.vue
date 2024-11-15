@@ -7,7 +7,7 @@
         <v-btn variant="tonal" class="ma-2 z-index" color="red" @click="resetSubmissionState">
           Reset <v-icon icon="mdi mdi-refresh" end></v-icon>
         </v-btn>
-        <v-btn variant="tonal" class="ma-2 z-index" color="green" @click="submitScores" :disabled="submitted">
+        <v-btn variant="tonal" class="ma-2 z-index" color="green" @click="printScore" :disabled="submitted">
           Print <v-icon icon="mdi mdi-check" end></v-icon>
         </v-btn>
       </v-container>

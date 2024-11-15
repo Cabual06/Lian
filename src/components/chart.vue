@@ -55,7 +55,7 @@ export default {
 
       // Map the aggregated data to Chart.js format
       return Object.keys(aggregatedData).map(contestantId => ({
-        x: `Contestant ${contestantId}`, // Label each bar by Contestants_id
+        x: `Candidate ${contestantId}`, // Label each bar by Contestants_id
         y: aggregatedData[contestantId] // Sum of the scores as y-value
       }));
     };
@@ -80,7 +80,7 @@ export default {
         data: {
           labels: dataPoints.map(point => point.x), // Contestants as x-axis labels
           datasets: [{
-            label: 'Total Score by Contestant',
+            label: 'Total Score by Candidate',
             data: dataPoints.map(point => point.y), // Aggregated scores as y-values
             borderColor: '#FFFFFF',
             backgroundColor: '#62B969',
@@ -114,7 +114,7 @@ export default {
               callbacks: {
                 title: function(tooltipItem) {
                   const contestantId = tooltipItem[0].label.split(" ")[1];
-                  return `Contestant ${contestantId}`;
+                  return `Candidate ${contestantId}`;
                 },
                 label: function(tooltipItem) {
                   const score = tooltipItem.raw;

@@ -55,11 +55,11 @@
       >
         <thead class="opacity-60">
           <tr>
-            <th class="text-left text-green">Name</th>
-            <th class="text-left text-green">Email</th>
-            <th class="text-left text-green">Address</th>
-            <th class="text-left text-green">Phone</th>
-            <th class="text-center text-green">Action</th>
+            <th class="text-left text-green font-weight-bold">Name</th>
+            <th class="text-left text-green font-weight-bold">Email</th>
+            <th class="text-left text-green font-weight-bold">Address</th>
+            <th class="text-left text-green font-weight-bold">Phone</th>
+            <th class="text-center text-green font-weight-bold">Action</th>
           </tr>
         </thead>
         <tbody>

@@ -1,0 +1,539 @@
+<template>
+  <Indexnav />
+  <v-app style="background-color: #f2f2f2">
+    <v-container>
+      <!-- Event Selection Boxes -->
+      <v-container class="mb-4 mt-4">
+        <h1 class=" mb-4 text-purple font-weight-bold mt-6 ml-4">Available Events</h1><span class="ml-6  text-medium-emphasis">Please Choose an Event to Judge</span>
+
+        <v-row dense class="mt-10">
+        <v-col
+          v-for="event in events"
+          :key="event.id"
+          cols="12" sm="6" md="4"
+        >
+          <!-- Card container for the overlay -->
+          <div class="position-relative">
+            <!-- Filling Overlay for Animation (only for the v-card) -->
+            <div
+              v-if="loadingEvent === event.id"
+              class="loading-overlay"
+            ></div>
+
+            <!-- v-card content -->
+            <v-card
+              outlined
+              hover
+              class="pa-4 mb-2 mx-2"
+              @click="handleCardClick(event)"
+            >
+              <v-card-title class="text-h6 font-weight-bold">
+                {{ event.name }}
+                <!-- Display event status -->
+                <v-chip
+                  v-if="event.status"
+                  :color="event.status === 'ongoing' ? 'green' : 'red'"
+                  class="ml-2 font-weight-bold"
+                >
+                  {{ event.status.charAt(0).toUpperCase() + event.status.slice(1) }}
+                </v-chip>
+              </v-card-title>
+              <v-card-text>
+                <div>{{ event.description }}</div>
+                <!-- Start Date -->
+                <div class="mt-2 text-medium-emphasis">
+                  <span class="font-weight-bold">Start Date:</span> {{ formatDate(event.start_date) }}
+                </div>
+                <div class="text-medium-emphasis">
+                  <span class="font-weight-bold">End Date:</span> {{ formatDate(event.end_date) }}
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
+        </v-col>
+      </v-row>
+
+            <v-alert v-if="events.length === 0" type="info" border="top">
+              No events available for scoring at the moment.
+            </v-alert>
+          </v-container>
+
+          <!-- Loading and other states (unchanged) -->
+          <!-- <v-container class="d-flex justify-center align-center" style="min-height: 75vh;">
+            <v-progress-circular
+              v-if="isLoadingRounds"
+              color="green"
+              :size="60"
+              :width="7"
+              indeterminate
+            ></v-progress-circular>
+            <v-empty-state
+              v-else-if="isMatchRounds"
+              icon="mdi mdi-file-document-alert-outline"
+              text="Contact the Administrator or Restart your Connections."
+              title="No Tabulation set by the Admin."
+            ></v-empty-state>
+          </v-container> -->
+
+      <!-- Dialog for submitting scores (unchanged) -->
+      <v-dialog v-model="dialogVisible" persistent max-width="80%">
+        <v-card class="px-8 py-4 rounded-lg position-relative">
+          <!-- Sticky Cancel Button -->
+          <v-btn
+            icon
+            class="cancel-button"
+            color="red"
+            variant="flat"
+            @click="dialogVisible = false"
+          >
+          <v-tooltip activator="parent" location="bottom">Close</v-tooltip>
+            <v-icon icon="mdi mdi-close"></v-icon>
+          </v-btn>
+
+          <v-card-title class="headline text-medium-emphasis font-weight-bold mt-10 ml-8 mb-4">
+            Submit Scores for <span class="text-purple"><h2>{{ selectedEvent?.name }}</h2></span>
+          </v-card-title>
+          <a class="ml-12" href="#" @click.prevent="showCandidatesDialog">View Candidates</a>
+
+          <v-card-text>
+            <v-container class="rounded">
+              <v-row v-for="(round, roundIndex) in rounds" :key="round.id">
+                <v-col cols="12" class="mb-4">
+                  <v-data-table
+                    v-model:items-per-page="round.itemsPerPage"
+                    :items="round.items"
+                    :items-length="round.totalItems"
+                    :page.sync="round.page"
+                    fixed-header
+                    theme="rounded opacity-100"
+                    class="bg-transparent rounded-lg"
+                    @update:page="(page) => handlePageUpdate(round.id, page)"
+                    @update:items-per-page="(itemsPerPage) => handleItemsPerPageUpdate(round.id, itemsPerPage)"
+                  >
+                    <thead class="opacity-100">
+                      <tr>
+                        <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Candidate ID</th>
+                        <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Candidate Name</th>
+                        <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Round Name</th>
+                        <th
+                          v-for="criteria in round.criteria"
+                          :key="criteria.id"
+                          class="text-center text-white font-weight-bold"
+                          style="background-color: #9e71d1;"
+                        >
+                          {{ criteria.criteriaName }}
+                        </th>
+                        <th class="text-center text-white font-weight-bold" style="background-color: #9e71d1;">Total Scores</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in round.items" :key="item.candidateId" class="font-weight-bold">
+                        <td>{{ item.candidateId || 'Unknown' }}</td>
+                        <td>{{ item.candidateName || 'Unknown' }}</td>
+                        <td>{{ item.roundName }}</td>
+                        <td v-for="criteria in round.criteria" :key="criteria.id" class="text-center">
+                          <v-select
+                            variant="plain"
+                            v-model="item.criteriaMap[criteria.id]"
+                            :items="generateScoreOptions(criteria.percentage)"
+                            hide-details
+                            density="default"
+                            style="width: 60px; margin: auto;"
+                          ></v-select>
+                        </td>
+                        <td class="text-center">
+                          {{ calculateTotalScore(item, round) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </v-data-table>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+
+          <v-card-actions class="mb-6">
+            <v-btn color="white" class="bg-green mr-10" @click="submitScores" :disabled="selectedEvent?.status === 'ended'">
+              Submit Scores
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+
+      <!-- New Dialog for Candidates -->
+
+      <v-dialog v-model="candidatesDialogVisible" max-width="80%">
+      <!-- Additional Bottom Section -->
+      <v-card-text class="mt-4 text-rightdow">
+        <p class="font-weight-bold text-black">Total Contestants: {{ contestants.length }}</p>
+      </v-card-text>
+      <v-card class="px-8 py-4 rounded-lg">
+        <v-card-title class="headline text-medium-emphasis font-weight-bold mt-10 ml-8 mb-4">
+          Contestants registered
+          <span class="text-purple"><h2>{{ selectedEvent?.name }}</h2></span>
+        </v-card-title>
+
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <!-- Check if contestants array is populated -->
+              <v-col v-if="contestants.length === 0" class="text-center">No contestants available.</v-col>
+
+              <!-- Display each contestant -->
+              <v-col
+                v-for="contestant in contestants"
+                :key="contestant.id"
+                cols="12"
+                sm="4"
+                md="3"
+                class="mb-4"
+              >
+                <v-card class="rounded-lg px-4 d-flex flex-column" style="height: 400px;" elevation="2">
+                  <!-- Image with 80% height -->
+                  <v-img
+                    :src="contestant.photo"
+                    class="rounded-top mt-2 rounded-lg"
+                    style="flex: 1 0 auto; height: 80%;"
+                  ></v-img>
+                  <!-- Contestant Name -->
+                  <v-card-text class="text-center mb-2">
+                    <span class="font-weight-bold">Contestant Name: </span> {{ contestant.name }}
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions class="mb-6">
+          <v-btn
+            color="white"
+            class="bg-red px-6"
+            @click="candidatesDialogVisible = false"
+          >
+            Close <v-icon icon="mdi mdi-close-circle-outline" end></v-icon>
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+      <v-dialog v-model="congratulationsDialog" max-width="500px">
+            <v-card>
+              <v-card-title class="text-h4 d-flex flex-column justify-center align-center text-green text-center font-weight-bold mt-8">Scores Submitted!
+                <img src="@/assets/con.png" alt="Congratulations Icon" width="190" height="190" class="m-8 mt-10 mb-4" />
+              </v-card-title>
+
+              <v-card-subtitle class="font-weight-bold text-center mt-4">Your scores have been successfully submitted for the Event.</v-card-subtitle>
+              <v-card-actions>
+                <v-btn variant="flat" class="mr-10 mb-6 mt-6 font-weight-bold" color="green" text @click="congratulationsDialog = false">DONE</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+    </v-container>
+  </v-app>
+</template>
+
+<script setup>
+import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { supabase } from '@/lib/supabaseClient';
+import { useToast } from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
+
+const congratulationsDialog = ref(false);
+const $toast = useToast();
+const router = useRouter();
+const events = ref([]);
+const selectedEvent = ref(null);
+const rounds = ref([]);
+const isLoadingRounds = ref(false);
+const dialogVisible = ref(false);
+const candidatesDialogVisible = ref(false);
+const contestants = ref([]);
+const loadingEvent = ref(null); // Track the event being loaded
+const loadingAnimationDuration = ref(3); // Default loading animation duration in seconds
+
+function generateScoreOptions(percentage) {
+  return Array.from({ length: percentage }, (_, i) => i + 1);
+}
+
+async function fetchEvents() {
+  try {
+    const { data, error } = await supabase
+      .from('Event')
+      .select('id, name, description, status, start_date, end_date');
+
+    if (error) throw error;
+
+    console.log('Fetched Events:', data); // Log to verify
+
+    events.value = data;
+  } catch (err) {
+    console.error('Error fetching events:', err.message);
+    $toast.error('Failed to load events. Please try again later.');
+  }
+}
+
+function formatDate(date) {
+  if (!date) return 'N/A';
+  const parsedDate = new Date(date);
+  return parsedDate.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true, // Optional: Use 12-hour format
+    timeZone: 'UTC' // Adjust timezone as needed
+  });
+}
+
+// Function to fetch contestants based on the selected event
+const fetchContestants = async () => {
+  console.log("Fetching contestants...");
+
+  if (!selectedEvent.value) return;
+
+  // Fetch contestants based on event_id
+  const { data, error } = await supabase
+    .from('Contestants')
+    .select('id, name, photo')
+    .eq('event_id', selectedEvent.value.id);
+
+  if (error) {
+    console.error('Error fetching contestants:', error.message);
+  } else {
+    contestants.value = data;  // Update contestants with fetched data
+    console.log('Contestants fetched:', contestants.value); // Verify the data
+  }
+};
+
+// Watch for selectedEvent changes to fetch contestants
+watch(() => selectedEvent.value, fetchContestants, { immediate: true });
+
+// Show the candidates dialog
+function showCandidatesDialog() {
+  candidatesDialogVisible.value = true;
+  fetchContestants();  // Fetch contestants for the event
+}
+
+async function fetchRoundsForEvent(eventId) {
+  isLoadingRounds.value = true;
+  try {
+    const { data: roundIds, error: roundIdsError } = await supabase
+      .from('event_rounds')
+      .select('Round_id')
+      .eq('Event_id', eventId);
+
+    if (roundIdsError) throw roundIdsError;
+
+    if (!Array.isArray(roundIds)) {
+      throw new Error('Round IDs are not an array.');
+    }
+
+    const { data: roundData, error: roundError } = await supabase
+      .from('Round')
+      .select('id, name')
+      .in('id', roundIds.map(id => id.Round_id));
+
+    if (roundError) throw roundError;
+
+    if (!Array.isArray(roundData)) {
+      throw new Error('Rounds data is not an array.');
+    }
+
+    const roundsWithCriteria = await Promise.all(roundData.map(async (round) => {
+      const { data: criteriaData, error: criteriaError } = await supabase
+        .from('Criteria')
+        .select('id, criteriaName, percentage')
+        .eq('Round_id', round.id);
+
+      if (criteriaError) throw criteriaError;
+
+      const { data: contestantData, error: contestantError } = await supabase
+        .from('ContestantRound')
+        .select('Contestants(id, name)')
+        .eq('Round_id', round.id);
+
+      if (contestantError) throw contestantError;
+
+      const { data: scoreData, error: scoreError } = await supabase
+        .from('Score')
+        .select('Contestants_id, Criteria_id, Score, Round_id')
+        .eq('Event_id', eventId);
+
+      if (scoreError) throw scoreError;
+
+      const scoresMap = scoreData.reduce((map, score) => {
+        const key = `${score.Round_id}_${score.Contestants_id}_${score.Criteria_id}`;
+        map[key] = score.Score;
+        return map;
+      }, {});
+
+
+      const items = contestantData.map(contestant => ({
+      candidateId: String(contestant.Contestants.id),
+      candidateName: contestant.Contestants.name,
+      roundName: round.name,
+      criteriaMap: Object.fromEntries(criteriaData.map(c => [
+        c.id,
+        scoresMap[`${round.id}_${contestant.Contestants.id}_${c.id}`] || null // Populate existing score or default to null
+      ]))
+    }));
+
+
+      return {
+        id: round.id,
+        name: round.name,
+        criteria: criteriaData,
+        items: items,
+        page: 1,
+        itemsPerPage: 20,
+        totalItems: items.length
+      };
+    }));
+
+    rounds.value = roundsWithCriteria;
+    dialogVisible.value = true;
+  } catch (err) {
+    console.error('Error fetching rounds:', err.message);
+    $toast.error('Failed to load rounds. Please try again later.');
+  } finally {
+    isLoadingRounds.value = false;
+  }
+}
+
+async function selectEvent(event) {
+  selectedEvent.value = event;
+  await fetchRoundsForEvent(event.id);
+}
+
+function calculateTotalScore(item, round) {
+  return round.criteria.reduce((total, criteria) => {
+    const score = item.criteriaMap[criteria.id];
+    return total + (score || 0);
+  }, 0);
+}
+
+async function submitScores() {
+  try {
+    const scoreData = rounds.value.flatMap(round =>
+      round.items.flatMap(item =>
+        Object.entries(item.criteriaMap).map(([criteriaId, score]) => ({
+          Contestants_id: item.candidateId,
+          Criteria_id: criteriaId,
+          Score: score,
+          Round_id: round.id,
+          Event_id: selectedEvent.value.id,
+        }))
+      )
+    );
+
+    const { error } = await supabase
+    .from('Score')
+    .upsert(scoreData, { onConflict: ['Contestants_id', 'Criteria_id', 'Round_id', 'Event_id'] });
+
+
+    if (error) throw error;
+
+    dialogVisible.value = false;
+    congratulationsDialog.value = true; // Show the modal
+  } catch (error) {
+    console.error('Error submitting scores:', error);
+    $toast.error('Failed to submit scores. Please try again.');
+  }
+}
+
+// Function to measure the fetch duration and adjust overlay speed
+async function measureFetchDuration(fetchFunction) {
+  const startTime = Date.now();
+  try {
+    await fetchFunction(); // Call the fetch function (e.g., fetchRoundsForEvent)
+  } catch (err) {
+    console.error("Error during fetch:", err);
+  } finally {
+    const endTime = Date.now();
+    const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+    loadingAnimationDuration.value = Math.min(10, Math.max(2, timeTaken)); // Clamp between 2s and 10s
+    document.documentElement.style.setProperty('--loading-animation-duration', `${loadingAnimationDuration.value}s`);
+  }
+}
+
+// Handle card click to trigger loading state and event selection
+async function handleCardClick(event) {
+  if (loadingEvent.value) return; // Prevent multiple clicks
+
+  // Start loading animation on the clicked event card
+  loadingEvent.value = event.id;
+
+  // Measure fetch duration and adjust animation speed accordingly
+  await measureFetchDuration(() => fetchRoundsForEvent(event.id));
+
+  // Once data is fetched, stop the loading animation
+  loadingEvent.value = null;
+
+  // Now show the dialog (trigger after data fetching)
+  dialogVisible.value = true;
+}
+
+onMounted(() => {
+  fetchEvents();
+});
+</script>
+
+
+<style scoped>
+
+.v-card {
+  position: relative;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 7px;
+  width: 0;
+  height: 100%;
+  background-color: rgba(157, 130, 189, 0.5);
+  animation: fill-up var(--loading-animation-duration, 3s) linear forwards; /* Default is 3s */
+  z-index: 1;
+  pointer-events: none; /* Ensure clicks pass through */
+  border-radius: 5px; /* Match card border radius */
+}
+
+
+@keyframes fill-up {
+  from {
+    width: 0;
+  }
+  to {
+    width: 97.5%;
+  }
+}
+
+.cancel-button {
+  position: sticky; /* Ensure it stays within the v-card */
+  top: 40px;          /* Position near the top */
+  left: 1357px;     /* Position near the right edge */
+  z-index: 10;        /* Ensure it stays on top of other content */
+}
+
+.v-data-table {
+  border-collapse: collapse;
+  border: .5px solid grey; /* Example: change border color to green */
+}
+
+.v-data-table tbody tr:hover {
+  background-color: #DCDCDC; /* Light green background on hover */
+}
+
+.text-green {
+  color: green;
+}
+
+.text-red {
+  color: red;
+}
+
+</style>

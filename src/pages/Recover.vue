@@ -1,4 +1,5 @@
 <template>
+  <v-app style="background-color: #f2f2f2">
     <div class="pt-16">
       <div class="text-center pt-16 mt-10">
         <h1>Recover Password</h1>
@@ -42,10 +43,10 @@
         </v-card>
   
         <v-btn
-          class=""
-          color="blue"
+          class="font-weight-bold"
+          color="purple"
           size="large"
-          variant="tonal"
+          variant="flat"
           block
           @click="recoverPassword"
         >
@@ -69,12 +70,13 @@
         <v-progress-linear
           :active="loading"
           :indeterminate="loading"
-          color="green"
+          color="purple"
           absolute
           bottom
         ></v-progress-linear>
       </v-card>
     </div>
+    </v-app>
   </template>
   
   <script>

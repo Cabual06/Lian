@@ -1,7 +1,7 @@
 <template>
     <Indexnav />
     <v-container>
-        <h1 class="mt-8 mb-8">{{ gender }} Candidates</h1>
+        <h1 class="mt-8 mb-8"><span class="text-green">{{ gender }}</span> Candidates</h1>
 
         <!-- Use v-row and v-col to arrange cards in a grid -->
         <v-row class="d-flex" dense>
@@ -40,7 +40,7 @@ export default {
     setup() {
         const cards = ref([]);
         const isLoading = ref(false);
-        const gender = ref('Male'); // Default gender filter
+        const gender = ref('Female'); // Default gender filter
 
         async function fetchData(gender) {
             isLoading.value = true;

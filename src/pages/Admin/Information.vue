@@ -1,13 +1,13 @@
 <template>
     <Nav />
-
+    <v-app>
         <v-container class="d-flex flex-column pb-6 pt-16 mt-8">
             <!-- <h1 class="text-medium-emphasis">Information</h1> -->
             <v-card width="700" height="310" class="bg-transparent text-center border-sm mx-auto mt-8">
                 <v-card-item>
                     <v-card-title>
-                        <h1 class="text-medium-emphasis">TABULATION SYSTEM</h1>
-                        <h1 class="text-medium-emphasis">FOR EVENTS </h1>
+                        <h1 class="text-medium-emphasis">Automated Data Tabulation</h1>
+                        <h1 class="text-medium-emphasis">for Event Management</h1>
                         <br>
                         <p class="text-subtitle-1 text-medium-emphasis">Lorem ipsum dolor sit amet consectetur, adipisicing elit. <br> Consectetur aut molestias incidunt inventore omnis, praesentium,<br> tempore recusandae ducimus quaerat, officiis voluptate! Error, quae <br> quod deserunt labore blanditiis nisi esse magni.</p>
                     </v-card-title>
@@ -29,9 +29,7 @@
             </v-container>
             </v-container>
         </v-container>
-
-
-    
+    </v-app>
 </template>
 
 <script>

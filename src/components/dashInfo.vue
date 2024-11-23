@@ -4,44 +4,44 @@
             <v-card variant="tonal" width="380px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalItems }}</h1>
-                    <p>Registered Judges</p>
+                    <p class="font-weight-bold">Registered Judges</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
-                    <v-icon size="70px"><span class="mdi mdi-account-multiple text-green"></span></v-icon>
+                    <v-icon size="70px"><span class="mdi mdi-account-multiple text-purple"></span></v-icon>
                 </v-card-item>
             </v-card>
 
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalCandidates }}</h1>
-                    <p>Total Candidates</p>
+                    <p class="font-weight-bold">Total Candidates</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
-                    <v-icon size="70px"><span class="mdi mdi-account-group text-green"></span></v-icon>
+                    <v-icon size="70px"><span class="mdi mdi-account-group text-purple"></span></v-icon>
                 </v-card-item>
             </v-card>
 
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
-                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalVotes }}</h1>
-                    <p>Scores Submitted</p>
+                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalEvents }}</h1>
+                    <p class="font-weight-bold">No. Events</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
-                    <v-icon size="70px"><span class="mdi mdi-calendar-edit text-green"></span></v-icon>
+                    <v-icon size="70px"><span class="mdi mdi-calendar-edit text-purple"></span></v-icon>
                 </v-card-item>
             </v-card>
 
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
-                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalRounds }}</h1>
-                    <p>No. of Rounds</p>
+                    <h1 class="text-h2 font-weight-bold mb-2">{{ totalOngoingEvents }}</h1>
+                    <p class="font-weight-bold">Ongoing Events</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
-                    <v-icon size="70px"><span class="mdi mdi-clock-out text-green"></span></v-icon>
+                    <v-icon size="70px"><span class="mdi mdi-clock-out text-purple"></span></v-icon>
                 </v-card-item>
             </v-card>
         </div>
@@ -57,11 +57,12 @@ export default {
         const serverItems = ref([]);
         const totalItems = ref(0);
         const totalVotes = ref(0);
+        const totalEvents = ref(0);
         const totalCandidates = ref(0);
         const totalRounds = ref(0);
         const isLoading = ref(false);
         const isMatch = ref(false);
-
+        const totalOngoingEvents = ref(0);
         async function fetchPageData() {
             isLoading.value = true;
             try {
@@ -86,7 +87,18 @@ export default {
                 if (error) throw new Error(error.message);
                 totalRounds.value = count;    
                 
+                ({ count, error } = await supabase
+                    .from('Event')
+                    .select('*', { count: 'exact', head: true }));
+                if (error) throw new Error(error.message);
+                totalEvents.value = count;        
                 
+                ({ count, error } = await supabase
+                    .from('Event')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('status', 'ongoing'));
+                if (error) throw new Error(error.message);
+                totalOngoingEvents.value = count;
 
             } catch (error) {
                 console.error('Error fetching data:', error.message);
@@ -100,7 +112,7 @@ export default {
             fetchPageData();
         });
 
-        return { serverItems, totalItems, totalVotes, totalCandidates, totalRounds, isLoading, isMatch };
+        return { serverItems, totalItems, totalVotes, totalCandidates, totalOngoingEvents, totalEvents, totalRounds, isLoading, isMatch };
     }
 };
 </script>

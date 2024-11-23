@@ -1,10 +1,10 @@
 <template>
     
     <Nav />
-    <v-app class="bg-black">
+    <v-app class="px-12" style="background-color: #f2f2f2">
         <v-container>
             <v-container class="pb-6 pt-16 mt-8">
-                <h1 class="text-medium-emphasis"><span class="text-green">D</span>ashboard</h1> 
+                <h1 class="text-medium-emphasis ml-8 mt-6 "><span class="text-purple">D</span><span class="text-black">ASHBOARD</span></h1> 
             </v-container>
             <dashInfo />
             <Chart />

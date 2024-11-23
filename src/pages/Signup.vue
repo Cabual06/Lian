@@ -1,14 +1,15 @@
 <template>
+  <v-app>
     <div class="pt-8">
   
       <div class="text-center pt-16 mt-12 pb-2">
-        <span class="text-h3 font-weight-bold"><span class="text-h2 text-green font-weight-bold">C</span>REATE ACCOUNT</span>
+        <span class="text-h3 font-weight-bold"><span class="text-h3 text-purple font-weight-bold">C</span>REATE ACCOUNT</span>
       </div>
   
       <v-card
-        class="mx-auto pa-12 pb-8 mt-10"
+        class="mx-auto pa-10 pb-8 mt-10"
         elevation="8"
-        max-width="455"
+        max-width="435"
         rounded="lg"
       >
         <div class="text-subtitle-1 text-medium-emphasis">Account</div>
@@ -88,10 +89,10 @@
         </v-card>
   
         <v-btn
-          class="mb-4"
-          color="green"
+          class="mb-4 font-weight-bold"
+          color="purple"
           size="large"
-          variant="tonal"
+          variant="flat"
           block
           @click="signup"
         >
@@ -112,7 +113,7 @@
         <v-progress-linear
           :active="loading"
           :indeterminate="loading"
-          color="green"
+          color="purple"
           absolute
           bottom
         ></v-progress-linear>
@@ -120,6 +121,7 @@
       </v-card>
   
     </div>
+  </v-app>
   </template>
   
   

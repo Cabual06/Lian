@@ -1,35 +1,36 @@
 <template>
   <Nav />
-  <v-app class="bg-black">
-    <v-container>
-      <v-container class="d-flex pb-6 pt-16 mt-6">
-        <h1 class="text-medium-emphasis"><span class="text-green">J</span>udges</h1>
+  <v-app class="" style="background-color: #FEFEFE">
+    <v-container class="px-16">
+      <v-container class="d-flex pb-6 pt-16 mt-16">
+        <h1 class="text-medium-emphasis"><span class="text-purple">JUDGE</span><span class="text-black"> LIST</span></h1>
         <v-spacer></v-spacer>
         <!-- <v-btn to="" variant="tonal" class="ma-2 z-index" color="green">
           Add Judge<v-icon icon="mdi-plus" end></v-icon>
         </v-btn> -->
       </v-container>
-
+      <v-breadcrumbs :items="['Home', 'Dashboard', 'Judges']" class=""></v-breadcrumbs>
       <!-- Edit User Dialog -->
       <v-dialog v-model="editDialog" max-width="570px">
-        <v-card class="bg-black rounded-lg px-6 py-4">
-          <v-card-title class="text-h4 text-green">Edit Judge</v-card-title>
+        <v-card class="rounded-lg px-6 py-4" style="background-color:;">
+          <v-card-title class="text-h4 text-purple ml-2 mt-4 mb-2 font-weight-bold">Edit Judge</v-card-title>
           <v-card-text>
-            <v-text-field variant="outlined" v-model="editedUser.name" label="Name"></v-text-field>
-            <v-text-field variant="outlined" v-model="editedUser.email" label="Email"></v-text-field>
-            <v-text-field variant="outlined" v-model="editedUser.address" label="Address"></v-text-field>
-            <v-text-field variant="outlined" v-model="editedUser.phone" label="Phone"></v-text-field>
+            <v-text-field class="font-weight-bold" variant="outlined" v-model="editedUser.name" label="Name"></v-text-field>
+            <v-text-field class="font-weight-bold" variant="outlined" v-model="editedUser.email" label="Email"></v-text-field>
+            <v-text-field class="font-weight-bold" variant="outlined" v-model="editedUser.address" label="Address"></v-text-field>
+            <v-text-field class="font-weight-bold" variant="outlined" v-model="editedUser.phone" label="Phone"></v-text-field>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="outlined" class="bg-black text-red mr-2 mb-4 px-6" text @click="editDialog = false">Cancel</v-btn>
-            <v-btn variant="outlined" class="bg-black text-green px-6 mr-5 mb-4" text @click="updateUser">Update</v-btn>
+            <v-btn variant="flat" class="text-white mr-2 mb-4 bg-red px-4 font-weight-bold" text @click="editDialog = false">Cancel <v-icon icon="mdi mdi-close-circle" end></v-icon></v-btn>
+            <v-btn variant="outlined" class="text-white bg-green px-4 mr-5 mb-4 font-weight-bold" text @click="updateUser">Update <v-icon icon="mdi mdi-check-circle" end></v-icon></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
 
       <v-toolbar class="bg-transparent mb-4 opacity-80">
         <v-text-field
+          class="border-sm mb-4 mt-2"
           v-model="search"
           density="comfortable"
           placeholder="Search User"
@@ -38,7 +39,7 @@
           variant="solo"
           hide-details
         >
-          <v-tooltip activator="parent" location="bottom">Search User's name</v-tooltip>
+          <v-tooltip activator="parent" location="bottom">Search Judge name</v-tooltip>
         </v-text-field>
       </v-toolbar>
 
@@ -48,31 +49,30 @@
         :items-length="totalItems"
         :page.sync="page"
         fixed-header
-        theme="dark rounded opacity-100"
-        class="bg-transparent border-sm"
+        theme="light rounded opacity-100"
         @update:page="handlePageUpdate"
         @update:items-per-page="handleItemsPerPageUpdate"
       >
-        <thead class="opacity-60">
+        <thead class="opacity-100">
           <tr>
-            <th class="text-left text-green font-weight-bold">Name</th>
-            <th class="text-left text-green font-weight-bold">Email</th>
-            <th class="text-left text-green font-weight-bold">Address</th>
-            <th class="text-left text-green font-weight-bold">Phone</th>
-            <th class="text-center text-green font-weight-bold">Action</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Name</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Email</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Address</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Phone</th>
+            <th class="text-center text-white font-weight-bold" style="background-color: #9e71d1;">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="User in serverItems" :key="User.id">
+          <tr v-for="User in serverItems" :key="User.id" class="text-black font-weight-bold ">
             <td>{{ User.name }}</td>
             <td>{{ User.email }}</td>
             <td>{{ User.address }}</td>
             <td>{{ User.phone }}</td>
             <td class="text-center">
-              <v-btn @click="editUser(User)" variant="tonal" size="small" class="ma-2" color="primary">
+              <v-btn @click="editUser(User)" variant="flat" size="small" class="ma-2 font-weight-bold" color="primary">
                 Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
               </v-btn>
-              <v-btn @click="deletejudge(User.id)" variant="tonal" size="small" class="ma-2" color="red">
+              <v-btn @click="deletejudge(User.id)" variant="flat" size="small" class="ma-2 font-weight-bold" color="red">
                 Delete <v-icon icon="mdi-delete" end></v-icon>
               </v-btn>
             </td>
@@ -80,7 +80,7 @@
         </tbody>
       </v-data-table>
 
-      <v-progress-linear v-if="isLoading" color="green" height="6" indeterminate rounded></v-progress-linear>
+      <v-progress-linear v-if="isLoading" color="purple" height="6" indeterminate rounded></v-progress-linear>
 
       <v-empty-state
         class="mt-16 pt-16"
@@ -212,4 +212,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.v-data-table {
+  border-collapse: collapse;
+  border: .5px solid grey; /* Example: change border color to green */
+}
+
+.v-data-table thead {
+  background-color: #007bff !important; /* Blue background */
+  color: red !important; /* White text */
+}
+
+.v-data-table td {
+
+}
+
+.v-data-table tbody tr:hover {
+  background-color: #DCDCDC; /* Light green background on hover */
+}
+
 </style>

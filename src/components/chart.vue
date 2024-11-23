@@ -82,9 +82,9 @@ export default {
           datasets: [{
             label: 'Total Score by Candidate',
             data: dataPoints.map(point => point.y), // Aggregated scores as y-values
-            borderColor: '#FFFFFF',
-            backgroundColor: '#62B969',
-            borderWidth: 2,
+            borderColor: '#000000',
+            backgroundColor: '#9E71D1',
+            borderWidth: 1,
           }]
         },
         options: {
@@ -94,18 +94,18 @@ export default {
                 color: '#1F1F1F',
               },
               ticks:{
-                color: '#D3D3D3',
+                color: '#000000',
               },
-              title: { display: true, text: 'Contestants', color: '#FFFFFF' },
+              title: { display: true, text: 'Contestants', color: '#000000' },
             },
             y: {
               grid:{
                 color: '#1F1F1F',
               },
               ticks:{
-                color: '#D3D3D3',
+                color: '#000000',
               },
-              title: { display: true, text: 'Total Score', color: '#FFFFFF' },
+              title: { display: true, text: 'Total Score', color: '#000000' },
               beginAtZero: true 
             }
           },
@@ -130,10 +130,11 @@ export default {
             const { ctx, chartArea: { left, right, top, bottom } } = chart;
             ctx.save();
             ctx.strokeStyle = '#1F1F1F'; // Border color
-            ctx.lineWidth = 4;        // Border thickness
+            ctx.lineWidth = 1;        // Border thickness
             ctx.strokeRect(left, top, right - left, bottom - top); // Draw rectangle around chart area
             ctx.restore();
-          }
+          },
+          
         }]
       });
 
@@ -164,14 +165,15 @@ canvas {
   border-radius: 5px;
   margin-top: 10px;
   max-width: 99%;
-  max-height: 650px; 
+  max-height: 640px; 
 }
 
 .no-data-message {
   margin-top: 20px;
   text-align: center;
   font-size: 16px;
-  color: #888;
+  color: purple;
+  font-weight: bold;
 
 }
 

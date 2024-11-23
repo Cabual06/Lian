@@ -14,6 +14,7 @@ const router = createRouter({
   routes,
 })
 
+
 // Workaround for https://github.com/vitejs/vite/issues/11804
 router.onError((err, to) => {
   if (err?.message?.includes?.('Failed to fetch dynamically imported module')) {
@@ -32,5 +33,10 @@ router.onError((err, to) => {
 router.isReady().then(() => {
   localStorage.removeItem('vuetify:dynamic-reload')
 })
+
+router.isReady().then(() => {
+  console.log(router.options.routes);  // Log the routes to ensure your dynamic route is present
+});
+
 
 export default router

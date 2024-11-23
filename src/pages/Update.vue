@@ -1,4 +1,5 @@
 <template>
+  <v-app style="background-color: #f2f2f2">
   <div class="pt-16">
     <div class="text-center pt-16 mt-10">
       <h1>Update your Password</h1>
@@ -34,9 +35,10 @@
       </v-card>
 
       <v-btn
-        color="blue"
+        color="purple"
         size="large"
-        variant="tonal"
+        variant="flat"
+        class="font-weight-bold"
         block
         @click="updatePassword"
       >
@@ -50,12 +52,13 @@
       <v-progress-linear
         :active="loading"
         :indeterminate="loading"
-        color="green"
+        color="purple"
         absolute
         bottom
       ></v-progress-linear>
     </v-card>
   </div>
+  </v-app>
 </template>
 
 <script>

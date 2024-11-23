@@ -1,1040 +1,987 @@
 <template>
-    
-    <Nav />
 
-    <!-- FOR CANDIDATES -->
-    <v-container>
+  <Nav />
+  <v-app class="" style="background-color: #f2f2f2">
 
-      <v-container class="d-flex pb-6 pt-16 mt-6">
-        <h1 class="text-medium-emphasis"><span class="text-green">C</span>andidates</h1> 
-  
-        <v-spacer></v-spacer>
-  
-        <v-btn @click="showCandidateDialog = true" variant="tonal" class="ma-2 z-index" color="green">
-          Add Candidate<v-icon icon="mdi-plus" end></v-icon>
-        </v-btn>
+    <v-container class="px-16 mt-12 pt-12">
+      <v-row align="center" justify="space-between">
+        <v-col cols="auto">
+          <h1 class="mt-12 mb-4 text-medium-emphasis">
+            <span class="text-purple ml-4">EVENTS</span><span class="text-black"> LISTS</span>
+          </h1>
+        </v-col>
+        
+        <v-col cols="auto">
+          <v-btn class="mt-8 mr-4 font-weight-bold" color="purple" dark @click="openPopup">Create Event</v-btn>
+        </v-col>
+      </v-row>
+      <v-container class="d-flex">
+        <v-dialog v-model="showPopup" persistent max-width="800px">
+      <template #activator="{ on, attrs }">
+        <v-breadcrumbs :items="['Home', 'Dashboard', 'Forms']"></v-breadcrumbs>
+      </template>
 
-        <v-btn 
-          @click="resetCandidates" 
-          variant="tonal" 
-          class="ma-2 z-index" 
-          color="red"
-        >
-          Reset Candidates<v-icon icon="mdi mdi-delete" end></v-icon>
-        </v-btn>
+  <v-card class="pa-6 position-relative rounded-lg">
+    <!-- Sticky Cancel Button -->
+    <v-btn
+      icon
+      class="cancel-button"
+      color="red"
+      variant="flat"
+      @click="closePopup"
+    >
+    <v-tooltip activator="parent" location="bottom">Close</v-tooltip>
+      <v-icon icon="mdi mdi-close"></v-icon>
+    </v-btn>
+
+    <v-card-title class="mt-4 mb-2 ml-2">
+      <span class="text-h4 font-weight-bold text-purple">Create Event</span>
+    </v-card-title>
+    <v-card-text>
+      <v-form ref="eventForm">
+        <!-- Event Details -->
+        <v-text-field v-model="newEvent.name" variant="outlined" label="Event Name" required></v-text-field>
+        <v-textarea v-model="newEvent.description" variant="outlined" label="Event Description" required></v-textarea>
+
+        <v-row>
+          <v-col cols="6">
+            <!-- Start Date Input -->
+            <v-text-field
+              variant="outlined"
+              v-model="newEvent.start_date"
+              label="Start Date"
+              required
+              hint="YYYY-MM-DD"
+              persistent-hint
+              :rules="[dateFormatRule]"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="6">
+            <!-- End Date Input -->
+            <v-text-field
+              variant="outlined"
+              v-model="newEvent.end_date"
+              label="End Date"
+              required
+              hint="YYYY-MM-DD"
+              persistent-hint
+              :rules="[dateFormatRule, endDateRule]"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-4"></v-divider>
+
+        <!-- Add Contestants -->
+        <h5 class="mb-4">Add Contestants</h5>
+        <v-btn color="purple" class="mb-4 font-weight-bold" small @click="addContestant">Add Contestant</v-btn>
+        <div v-for="(contestant, index) in newEvent.contestants" :key="index" class="my-2">
+          <v-row>
+            <v-col cols="4">
+              <v-text-field variant="outlined" v-model="contestant.name" label="Name" dense></v-text-field>
+            </v-col>
+            <v-col cols="2">
+              <v-text-field variant="outlined" v-model="contestant.age" label="Age" dense></v-text-field>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field variant="outlined" v-model="contestant.address" label="Address" dense></v-text-field>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field variant="outlined" v-model="contestant.course" label="Course" dense></v-text-field>
+            </v-col>
+            <v-col cols="4">
+              <v-select
+                variant="outlined"
+                v-model="contestant.gender"
+                :items="['Male', 'Female']"
+                label="Gender"
+                dense
+              ></v-select>
+            </v-col>
+            <v-col cols="8">
+              <v-file-input
+                variant="outlined"
+                v-model="contestant.photo"
+                label="Upload Photo"
+                accept="image/*"
+                dense
+                outlined
+              ></v-file-input>
+            </v-col>
+            <!-- Remove button -->
+            <v-col cols="12">
+              <v-btn color="red" class="font-weight-bold" @click="removeContestant(index)" small>
+                Remove
+                <v-icon icon="mdi mdi-close-circle" end></v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+        </div>
+
+        <v-divider class="my-4"></v-divider>
+
+        <!-- Add Rounds and Criteria -->
+        <h5>Add Rounds</h5>
+        <v-btn color="purple" class="mb-2 font-weight-bold" small @click="addRound">Add Round</v-btn>
+        <div v-for="(round, roundIndex) in newEvent.rounds" :key="roundIndex" class="my-3">
+          <v-text-field variant="outlined" v-model="round.name" label="Round Name" dense></v-text-field>
+          <v-btn color="primary" class="font-weight-bold" small @click="addCriterion(roundIndex)">Add Criterion</v-btn>
+          <div v-for="(criterion, critIndex) in round.criteria" :key="critIndex" class="my-2">
+            <v-row>
+              <v-col cols="8">
+                <v-text-field variant="outlined" v-model="criterion.criteriaName" label="Criteria Name" dense></v-text-field>
+              </v-col>
+              <v-col cols="4">
+                <v-text-field variant="outlined" v-model.number="criterion.percentage" label="Percentage" type="number" dense></v-text-field>
+              </v-col>
+            </v-row>
+          </div>
+        </div>
+      </v-form>
+    </v-card-text>
+    <v-card-actions>
+      <v-btn class="font-weight-bold px-8 mr-2" color="green" variant="flat" @click="saveEvent">
+        Save
+        <v-icon icon="mdi mdi-check-circle" end></v-icon>
+      </v-btn>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
+
+
+        <!-- View Scores Popup -->
+        <v-dialog v-model="showScoresPopup" persistent max-width="1500px">
+          <template #activator="{ on, attrs }"></template>
+
+          <v-card class="pa-6 rounded-lg position-relative">
+            <!-- Sticky Close Button -->
+            <v-btn
+              icon
+              class="close-button"
+              color="red"
+              variant="flat"
+              @click="closeScoresPopup"
+            >
+            <v-tooltip activator="parent" location="bottom">Close</v-tooltip>
+              <v-icon icon="mdi mdi-close"></v-icon>
+            </v-btn>
+
+            <!-- Title -->
+            <v-card-title class="pt-8">
+              <span class="text-h4 font-weight-bold text-purple ml-8">Scores Submitted</span>
+            </v-card-title>
+
+            <!-- Content -->
+            <v-card-text class="rounded-lg mx-6">
+              <div v-if="eventScores.length > 0" v-for="round in eventScores" :key="round.roundName">
+                <v-data-table
+                  :items="round.scores"
+                  :headers="[
+                    { text: 'Contestant Name', align: 'start' },
+                    { text: 'Round Name', align: 'start' },
+                    ...Object.keys(round.scores[0].scores).map(criteria => ({
+                      text: criteria,
+                      align: 'center'
+                    })),
+                    { text: 'Total Score', align: 'center' }
+                  ]"
+                  item-value="contestantName"
+                  class="rounded-lg mb-4 mt-12"
+                >
+                  <template v-slot:default="{ items }">
+                    <thead>
+                      <tr>
+                        <th class="text-left text-white font-weight-bold" style="background-color: #5c2f91;">Contestant Name</th>
+                        <th class="text-left text-white font-weight-bold" style="background-color: #5c2f91;">Round Name</th>
+                        <th
+                          v-for="(criteria, index) in Object.keys(round.scores[0].scores)"
+                          :key="index"
+                          class="text-center text-white font-weight-bold"
+                          style="background-color: #5c2f91;"
+                        >
+                          {{ criteria }}
+                        </th>
+                        <th class="text-center text-white font-weight-bold" style="background-color: #5c2f91;">Total Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in items" :key="item.contestantName">
+                        <td class="font-weight-bold">{{ item.contestantName }}</td>
+                        <td class="font-weight-bold">{{ round.roundName }}</td>
+                        <td
+                          v-for="(criteria, index) in Object.keys(round.scores[0].scores)"
+                          :key="index"
+                          class="text-center font-weight-bold"
+                        >
+                          {{ item.scores[criteria] || 'No Score' }}
+                        </td>
+                        <td class="text-center font-weight-bold">
+                          {{ Object.values(item.scores).reduce((sum, score) => sum + score, 0) }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </template>
+                </v-data-table>
+              </div>
+            </v-card-text>
+
+            <!-- Actions -->
+            <v-card-actions class="mb-4">
+              <v-btn class="px-4" color="primary" variant="flat" @click="downloadPDF">Download PDF <v-icon icon="mdi mdi-download" end></v-icon></v-btn>
+              <v-btn class="px-4 mr-12" color="purple" variant="flat" @click="printScores">Print <v-icon icon="mdi mdi-printer" end></v-icon></v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
 
       </v-container>
-  
-      <v-toolbar class="bg-transparent mb-4 opacity-80">
-        <v-text-field
-          v-model="search"
-          density="comfortable"
-          placeholder="Search Candidate"
-          prepend-inner-icon="mdi-magnify"
-          style="max-width: 320px;"
-          variant="solo"
-  
-          hide-details
-        >
-        <v-tooltip
-          activator="parent"
-          location="bottom"
-        >Search Candidate's name</v-tooltip>
-      </v-text-field>
-      </v-toolbar>
-  
+
       <v-data-table-server
-        v-model:items-per-page="itemsPerPage"
-        :items="serverItems"
-        :items-length="totalItems"
-        :page.sync="page"
+          v-model:items-per-page="itemsPerPageEvents"
+        :items="serverItemsEvents"
+        :items-length="totalItemsEvents"
+        :page.sync="pageEvents"
         fixed-header
-        theme="dark rounded opacity-100"
-        class="bg-transparent border-sm"
-        @update:page="handlePageUpdate"
-        @update:items-per-page="handleItemsPerPageUpdate"
-        >
-        <thead class="opacity-60">
-            <tr>
-            <th class="text-left text-green font-weight-bold">ID</th>
-            <th class="text-left text-green font-weight-bold">Name</th>
-            <th class="text-left text-green font-weight-bold">Address</th>
-            <th class="text-left text-green font-weight-bold">Age</th>
-            <th class="text-left text-green font-weight-bold">Course</th>
-            <th class="text-center text-green font-weight-bold">Gender</th>
-            <th class="text-center text-green font-weight-bold">Action</th>
-            </tr>
+        theme="light rounded opacity-100"
+        class="bg-transparent"
+        @update:page="handlePageUpdateEvents"
+        @update:items-per-page="handleItemsPerPageUpdateEvents"
+      >
+        <thead class="opacity-100">
+          <tr>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event ID</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event Name</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Description</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Start Date</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">End Date</th>
+            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Status</th>
+            <th class="text-center text-white font-weight-bold" style="background-color: #9e71d1;">Actions</th>
+          </tr>
         </thead>
         <tbody>
-            <tr v-for="Contestant in serverItems" :key="Contestant.id">
-            <td>{{ Contestant.id }}</td>
-            <td>{{ Contestant.name }}</td>
-            <td>{{ Contestant.address }}</td>
-            <td>{{ Contestant.age }} Yrs old</td>
-            <td class="text-left">{{ Contestant.course }}</td>
-            <td class="text-center">{{ Contestant.gender }}</td>
-            <!-- <td><v-img :src="Contestant.photo"></v-img></td> -->
-            <td class="text-center">
-              <v-btn 
-                @click="editContestant(Contestant)"
-                variant="tonal" 
-                size="small" 
-                class="ma-2" 
-                color="primary">
-                Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
-              </v-btn>
-                <v-btn 
-                variant="tonal" 
-                size="small" 
-                class="ma-2" 
-                color="red" 
-                @click="deleteCandidate(Contestant.id)"
-                >
-                Delete <v-icon icon="mdi-delete" end></v-icon>
-                </v-btn>
-            </td>
-            </tr>
+          <tr v-for="event in serverItemsEvents" :key="event.id" class="font-weight-bold">
+            <td>{{ event.id }}</td>
+            <td>{{ event.name }}</td>
+            <td>{{ event.description }}</td>
+            <td>{{ formatDate(event.start_date) }}</td>
+            <td>{{ formatDate(event.end_date) }}</td>
+
+            <td :class="{'text-green': event.status === 'ongoing', 'text-red': event.status === 'ended'}">
+            {{ event.status }}
+          </td>
+          <!-- Modify this section in your table -->
+          <td class="text-center">
+            <v-btn
+              @click="viewScores(event.id)" 
+              variant="flat" 
+              size="small" 
+              class="ma-2 font-weight-bold" 
+              color="primary"
+            >
+            <v-tooltip activator="parent" location="bottom">View Scores</v-tooltip>
+              <v-icon icon="mdi mdi-eye"></v-icon>
+            </v-btn>
+            <v-btn 
+              @click="closeEvent(event.id)"
+              variant="flat" 
+              size="small" 
+              class="ma-2 font-weight-bold" 
+              color="green"
+            >
+            <v-tooltip activator="parent" location="bottom">End Event</v-tooltip>
+              <v-icon icon="mdi mdi-close-circle-outline"></v-icon>
+            </v-btn>
+            <v-btn 
+              @click="deleteEvent(event.id)" 
+              variant="flat" 
+              size="small" 
+              class="ma-2 font-weight-bold" 
+              color="red"
+            >
+            <v-tooltip activator="parent" location="bottom">Delete Event</v-tooltip>
+               <v-icon icon="mdi mdi-delete"></v-icon>
+            </v-btn>
+          </td>
+          </tr>
         </tbody>
-        </v-data-table-server>
-
-      <v-progress-linear
-        v-if="isLoading"
-        color="green"
-        height="6"
-        indeterminate
-        rounded
-      ></v-progress-linear>   
-  
-      <v-empty-state
-        class="mt-10 pt-10"
-        v-if="isMatch"
-        icon="mdi-magnify"
-        text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
-        title="We couldn't fetch data from Database."
-      ></v-empty-state>
-
-      <v-empty-state
-        class="mt-6 pt-6"
-        v-if="roundAvailable"
-        text="No Candidates Available, Please Create a Candidate."
-        title="No Candidates."
-      ></v-empty-state>
-    </v-container>
-
-
-
-    <!-- FOR ROUNDS -->
-    <v-container>
-  <v-container class="d-flex pb-6 pt-12 mt-2">
-    <h1 class="text-medium-emphasis"><span class="text-green">R</span>ounds</h1>
-
-    <v-spacer></v-spacer>
-
-    <v-btn @click="showDialog = true" variant="tonal" class="ma-2 z-index" color="green">
-      Create Round<v-icon icon="mdi-plus" end></v-icon>
-    </v-btn>
-
-    <v-btn 
-      variant="tonal" 
-      size="default" 
-      color="red" 
-      @click="deleteRound(selectedRoundId)" 
-      class="ma-2"
-    >
-      Delete Round<v-icon icon="mdi-delete" end></v-icon>
-    </v-btn>
-
-  </v-container>
-
-  <v-select
-    width="280"
-    variant="outlined"
-    density="compact"
-    v-model="selectedRoundId"
-    :items="uniqueRoundIds"
-    label="Select Round to Delete"
-    class=""
-  ></v-select>
-
-
-  <!-- The Data Table -->
-  <v-data-table-server
-  v-model:items-per-page="itemsPerPageRounds"
-  :items="serverItemsRounds"
-  :items-length="totalItemsRounds"
-  :page.sync="pageRounds"
-  fixed-header
-  theme="dark rounded opacity-100"
-  class="bg-transparent border-sm"
-  @update:page="handlePageUpdateRounds"
-  @update:items-per-page="handleItemsPerPageUpdateRounds"
->
-  <thead class="opacity-60">
-    <tr>
-      <th class="text-left text-green font-weight-bold">Round ID</th>
-      <th class="text-left text-green font-weight-bold">Round Name</th>
-      <th class="text-left text-green font-weight-bold">Criteria ID</th>
-      <th class="text-left text-green font-weight-bold">Criteria Name</th>
-      <th class="text-left text-green font-weight-bold">Percentage</th>
-      <th class="text-center text-green font-weight-bold">Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    <template v-for="(item, index) in serverItemsRounds" :key="item.criteriaId">
-      <tr>
-        <td>{{ item.roundId }}</td>
-        <td>{{ item.roundName }}</td>
-        <td>{{ item.criteriaId }}</td>
-        <td>{{ item.criteriaName }}</td>
-        <td>{{ item.percentage }} %</td>
-        <td class="text-center">
-          <v-btn variant="tonal" size="small" class="ma-2" color="primary">
-            Edit <v-icon icon="mdi-checkbox-marked-circle" end></v-icon>
-          </v-btn>
-        </td>
-      </tr>
-      <!-- Display total row only after the last criterion for each round -->
-      <tr v-if="index === lastIndexByRound[item.roundId]">
-        <td colspan="4" class="text-right font-weight-bold text-green">Total Percentage for {{ totalPercentageByRound[item.roundId].roundName }}:</td>
-        <td class="font-weight-bold">{{ totalPercentageByRound[item.roundId].totalPercentage }} %</td>
-        <td></td>
-      </tr>
-    </template>
-  </tbody>
-</v-data-table-server>
-
-
-
-  <!-- For Editing Candidates -->
-  <v-dialog v-model="editDialog" max-width="570px">
-    <v-card class="bg-black rounded-lg px-6 py-4">
-      <v-card-title class="text-h4 text-green">Edit Candidate</v-card-title>
-      <v-card-text>
-        <v-text-field variant="outlined" v-model="editedContestant.name" label="Name"></v-text-field>
-        <v-text-field variant="outlined" v-model="editedContestant.age" label="Age"></v-text-field>
-        <v-text-field variant="outlined" v-model="editedContestant.address" label="Address"></v-text-field>
-        <v-text-field variant="outlined" v-model="editedContestant.course" label="Course"></v-text-field>
-        <v-select variant="outlined" v-model="editedContestant.gender" label="Gender"  :items="candidateGender"></v-select>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn variant="outlined" class="bg-black text-red mr-2 px-4 mb-4" @click="editDialog = false" text>Cancel</v-btn>
-        <v-btn variant="outlined" class="bg-black text-green px-6 mr-4 mb-4" @click="updateUser" text>Update</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-
-
-    <!-- Progress and Empty State Components -->
-    <v-progress-linear
-      v-if="isLoadingRounds"
-      color="green"
-      height="6"
-      indeterminate
-      rounded
-    ></v-progress-linear>
+      </v-data-table-server>
+      <v-progress-linear v-if="isLoading" color="purple" height="6" indeterminate rounded></v-progress-linear>
 
     <v-empty-state
-      class="mt-10 pt-10"
-      v-if="isMatchRounds"
+      class="mt-16 pt-16"
+      v-if="isMatch"
       icon="mdi-magnify"
       text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
       title="We couldn't fetch data from Database."
     ></v-empty-state>
-
-    <v-empty-state
-      class="mt-6 pt-6"
-      v-if="criteriaAvailable"
-      text="No Rounds Available, Please Create a Round and Criteria's."
-      title="No Rounds."
-    ></v-empty-state>
-</v-container>
-
-
-
-    <!-- Dialog for adding a new candidate -->
-<v-dialog v-model="showCandidateDialog" max-width="570">
-  <v-card class="bg-black rounded-lg">
-    <v-card-title class="py-8 pl-12">
-      <h1 class="text-h4 text-green">Add New Candidate</h1>
-    </v-card-title>
-    <v-card-subtitle class="pl-12">Enter the details for the new candidate</v-card-subtitle>
-    <v-card-text>
-      <v-form class="px-6">
-        <v-text-field
-          variant="outlined"
-          v-model="newCandidate.id"
-          label="Candidate ID"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          variant="outlined"
-          v-model="newCandidate.name"
-          label="Name"
-          required
-        ></v-text-field>
-
-        <v-select
-          variant="outlined"
-          v-model="newCandidate.gender"
-          label="Gender"
-          :items="candidateGender"
-        ></v-select>
-
-        <v-text-field
-          variant="outlined"
-          label="Address"
-          v-model="newCandidate.address"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          variant="outlined"
-          v-model="newCandidate.age"
-          label="Age"
-          type="number"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          variant="outlined"
-          v-model="newCandidate.course"
-          label="Course"
-          required
-        ></v-text-field>
-
-        <!-- New file input for the candidate's image -->
-        <v-file-input
-          variant="outlined"
-          v-model="newCandidate.photo"
-          label="Upload Candidate Photo"
-          accept="image/*"
-          required
-        ></v-file-input>
-
-        <!-- Optional preview of the uploaded image -->
-        <v-img
-          v-if="newCandidate.photo"
-          :src="newCandidate.photo"
-          max-width="150"
-          class="mt-4"
-        ></v-img>
-
-      </v-form>
-    </v-card-text>
-    <v-card-actions class="mb-4 mr-8">
-      <v-spacer></v-spacer>
-      <v-btn variant="outlined" @click="saveCandidate" class="bg-black text-green mb-2">Save Candidate</v-btn>
-      <v-btn variant="outlined" @click="showCandidateDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
-
-
-
-
-<!-- Dialog for adding a new round with multiple criteria -->
-<v-dialog v-model="showDialog" max-width="570">
-  <v-card class="bg-black rounded-lg">
-    <v-card-title class="py-8 pl-12">
-      <h1 class="text-h4 text-green">Create New Round</h1>
-    </v-card-title>
-    <v-card-subtitle class="pl-12">Enter the details for the new round</v-card-subtitle>
-    <v-card-text>
-      <v-form class="px-4">
-        <v-text-field
-          variant="outlined"
-          v-model.number="newRound.roundId"
-          label="Round ID"
-          required
-        ></v-text-field>
-
-        <v-text-field
-          variant="outlined"
-          v-model="newRound.roundName"
-          label="Round Name"
-          required
-        ></v-text-field>
-
-        <!-- Text field for inputting candidate IDs or names -->
-        <v-text-field
-          variant="outlined"
-          v-model="newRound.candidateInput"
-          label="Enter Candidate IDs or Names (comma-separated)"
-          placeholder="e.g., 1, 2, 3 or Cabual, Schvua"
-          class="mt-4"
-        ></v-text-field>
-
-        <!-- Dynamic Criteria Form -->
-        <v-container>
-          <v-row v-for="(criteria, index) in newRound.criteria" :key="index">
-            <v-col cols="12" md="4">
-              <v-text-field
-                variant="outlined"
-                v-model="criteria.criteriaName"
-                label="Criteria Name"
-                required
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-text-field
-                variant="outlined"
-                v-model="criteria.percentage"
-                label="Percentage"
-                type="number"
-                min="20"
-                max="100 - getTotalPercentage(index)"
-                required
-              ></v-text-field>
-            </v-col>
-            <v-col cols="13" md="4">
-              <v-btn variant="outlined" @click="removeCriteria(index)" class="bg-black text-red mt-2">Remove</v-btn>
-            </v-col>
-          </v-row>
-          <v-btn 
-            @click="addCriteria" 
-            variant="outlined"
-            class="bg-black text-green"
-            :disabled="newRound.criteria.length >= 5"
-          >
-            Add Another Criteria
-          </v-btn>
-        </v-container>
-      </v-form>
-    </v-card-text>
-    <v-card-actions class="mb-4 mr-10">
-      <v-spacer></v-spacer>
-      <v-btn variant="outlined" @click="saveRound" class="bg-black text-green mb-2">Save Round</v-btn>
-      <v-btn variant="outlined" @click="showDialog = false" class="bg-black text-red ml-2 mb-2">Cancel</v-btn>
-    </v-card-actions>
-  </v-card>
-</v-dialog>
-
+    </v-container>
+  </v-app>
 </template>
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
-import { supabase } from '@/lib/supabaseClient'; 
-import {useToast} from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-bootstrap.css';
-import { watchEffect } from 'vue';
 
-// Toast
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable'; 
+import { useToast } from 'vue-toast-notification';
+import { supabase } from '@/lib/supabaseClient';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 const $toast = useToast();
-
-// For search
-const search = ref('');
-
-// Pagination state for candidates
-const page = ref(1);
-const itemsPerPage = ref(10);
-const serverItems = ref([]);
-const totalItems = ref(0);
-const roundAvailable = ref(false);
-const criteriaAvailable = ref(false);
-const candidateGender = ref(["Male", "Female"]);
-
-
-// Pagination state for rounds
-const pageRounds = ref(1);
-const itemsPerPageRounds = ref(10);
-const serverItemsRounds = ref([]);
-const totalItemsRounds = ref(0);
-const selectedRoundId = ref(null);
-
-
-// Dialog and form state
-const showDialog = ref(false);
-const newRound = ref({
-  roundId: '',
-  roundName: '',
-  candidateInput: '', 
-  candidateIds: [], 
-  criteria: [{ criteriaName: '', percentage: 20 }] 
-});
-
-
-// Dialog and form state for candidate
-const showCandidateDialog = ref(false);
-const newCandidate = ref({
-  id: '',
-  name: '',
-  address: '',
-  age: '',
-  course: '',
-  gender: '',
-});
-
-
-// Edit Dialog State
-const editDialog = ref(false);
-const editedContestant = ref({
-  id: null,
-  name: '',
-  age: '',
-  address: '',
-  course: '',
-  gender: '',
-});
-
-
-// Progress state
-const isMatch = ref(false);
 const isLoading = ref(true);
-const isLoadingRounds = ref(true);
 const isMatchRounds = ref(false);
+const serverItemsEvents = ref([]);
+const totalItemsEvents = ref(0);
+const pageEvents = ref(1);
+const itemsPerPageEvents = ref(10);
+const showPopup = ref(false);
+const showScoresPopup = ref(false);  // Added ref for scores popup
+const eventScores = ref([]);  // Store event scores
+const scoreHeaders = ref([
+  { text: 'Contestant Name', align: 'start', key: 'contestantName' },
+  { text: 'Round', align: 'start', key: 'roundName' },
+  { text: 'Criteria', align: 'start', key: 'criteriaName' },
+  { text: 'Score', align: 'start', key: 'score' }
+]);
 
+// Static Breadcrumbs Array
+const breadcrumbs = ref([
+  { text: 'Dashboard', disabled: false, href: '/' },
+  { text: 'Form', disabled: false, href: '/events' },
+  { text: 'Events', disabled: true }
+]);
 
-
-// Computed property for total percentage
-const totalPercentageByRound = computed(() => {
-  // Group criteria by roundId and calculate total percentage for each round
-  return serverItemsRounds.value.reduce((acc, item) => {
-    if (!acc[item.roundId]) {
-      acc[item.roundId] = {
-        roundName: item.roundName,
-        totalPercentage: 0,
-      };
-    }
-    acc[item.roundId].totalPercentage += Math.round(item.percentage); 
-    return acc;
-  }, {});
+const newEvent = ref({
+  name: '',
+  description: '',
+  start_date: '',
+  end_date: '',
+  contestants: [],
+  rounds: [],
 });
 
-// Last row Percentage
-const lastIndexByRound = computed(() => {
-  const lastIndex = {};
-  serverItemsRounds.value.forEach((item, index) => {
-    lastIndex[item.roundId] = index; 
-  });
-  return lastIndex;
-});
-
-
-// Pagination updates
-function handlePageUpdateRounds(newPage) {
-  pageRounds.value = newPage;
-  fetchPageDataRounds();
-}
-
-function handleItemsPerPageUpdateRounds(newItemsPerPage) {
-  itemsPerPageRounds.value = newItemsPerPage;
-  fetchPageDataRounds();
-}
-
-
-
-// Fetch data for candidates
-async function fetchPageData() {
-  isLoading.value = true;
-  roundAvailable.value = false; 
-  try {
-    const { data, error, count } = await supabase
-      .from('Contestants')
-      .select('id, name, age, course, address, photo, gender', { count: 'exact' })
-      .range((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value - 1)
-      .ilike('name', `%${search.value}%`);
-
-    if (error) throw new Error(error.message);
-
-    if (data.length === 0) {
-      roundAvailable.value = true; 
-      return;
-    }
-
-    // Processing rounds data...
-    isMatchRounds.value = false; 
-    serverItems.value = data;
-    console.log('Server items:', serverItems.value); 
-    totalItems.value = count;
-    
-  } catch (error) {
-    console.error('Error fetching data:', error.message);
-    roundAvailable.value = false; 
-    isMatch.value = true;
-  } finally {
-    isLoading.value = false;
+// Date format validation rule (YYYY-MM-DD)
+const dateFormatRule = (value) => {
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regex.test(value)) {
+    return 'Date must be in the format YYYY-MM-DD';
   }
+  return true;
+};
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0]; // Formats date as 'YYYY-MM-DD'
 }
 
 
-
-// Save Candidate
-async function saveCandidate() {
-  try {
-    // Ensure id is a number
-    const candidateId = parseInt(newCandidate.value.id, 10);
-    if (isNaN(candidateId)) {
-      throw new Error('Candidate ID must be a number');
-    }
-
-    // Convert age to number if necessary
-    const age = parseInt(newCandidate.value.age, 10);
-
-    let photoUrl = null;
-    
-    // Check if there's a photo to upload
-    if (newCandidate.value.photo) {
-      const file = newCandidate.value.photo;
-      const fileExt = file.name.split('.').pop();
-      const filePath = `candidates/${candidateId}.${fileExt}`;
-
-      // Upload image to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('candidate-photos') 
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Get the public URL of the uploaded image
-      const { data: fileData, error: urlError } = await supabase.storage
-        .from('candidate-photos')
-        .getPublicUrl(filePath);
-
-      if (urlError) throw urlError;
-
-      photoUrl = fileData.publicUrl;
-    }
-
-    // Insert candidate data, including photo URL
-    const { error } = await supabase
-      .from('Contestants')
-      .insert({
-        id: candidateId,
-        name: newCandidate.value.name,
-        address: newCandidate.value.address,
-        age: age,
-        course: newCandidate.value.course,
-        gender: newCandidate.value.gender,
-        photo: photoUrl, 
-      });
-
-    if (error) throw error;
-
-    $toast.success('Candidate Added Successfully!', {
-      position: 'bottom-right',
-      duration: 8000,
-    });
-    fetchPageData();
-    showCandidateDialog.value = false;
-  } catch (error) {
-    console.error('Error adding candidate:', error.message);
-    alert('Failed to add candidate. Please try again.');
+// End date must be after start date
+const endDateRule = (value) => {
+  if (newEvent.value.start_date && new Date(value) < new Date(newEvent.value.start_date)) {
+    return 'End date must be after start date';
   }
+  return true;
+};
+
+function openPopup() {
+  showPopup.value = true;
 }
 
-// Update the edited contestant in the database
-async function updateUser() {
-  try {
-    const { data, error } = await supabase
-      .from('Contestants')
-      .update({
-        name: editedContestant.value.name,
-        age: editedContestant.value.age,
-        address: editedContestant.value.address,
-        course: editedContestant.value.course,
-        gender: editedContestant.value.gender
-      })
-      .match({ id: editedContestant.value.id }); 
+function closePopup() {
+  resetForm();
+  showPopup.value = false;
+}
 
-    if (error) {
-      throw error;
-    }
+function addContestant() {
+  newEvent.value.contestants.push({ name: '', age: '', address: '', course: '', gender: '', photo: '' });
+}
 
-    // Provide feedback to the user
-    $toast.success('Candidate Updated Successfully!', {
-      position: 'bottom-right',
-      duration: 8000,
-    });
+function removeContestant(index) {
+  // Remove the contestant from the array based on the index
+  newEvent.value.contestants.splice(index, 1);
+}
 
-    // Refresh the data
-    fetchPageData();
-    editDialog.value = false; 
-
-  } catch (error) {
-    console.error('Error updating candidate:', error.message);
-    alert('Failed to update candidate. Please try again.');
-  }
+function addRound() {
+  newEvent.value.rounds.push({ name: '', criteria: [] });
 }
 
 
+function addCriterion(roundIndex) {
+  const round = newEvent.value.rounds[roundIndex];
 
-
-// Edit Candidate Function
-function editContestant(contestant) {
-  editedContestant.value = { ...contestant };
-  editDialog.value = true;
-}
-
-
-  
-// Fetch data for rounds
-async function fetchPageDataRounds() {
-  isLoadingRounds.value = true;
-  try {
-    const { data, error, count } = await supabase
-      .from('Round')
-      .select(`
-        id,
-        name,
-        Criteria (id, criteriaName, percentage)
-      `, { count: 'exact' })
-      .range((pageRounds.value - 1) * itemsPerPageRounds.value, pageRounds.value * itemsPerPageRounds.value - 1);
-
-
-    if (data.length === 0) {
-      criteriaAvailable.value = true; 
-      return;
-    }
-
-    if (error) {
-      console.error('Error fetching rounds data:', error.message);
-      isMatchRounds.value = true;
-      return;
-    }
-
-    // Flatten data to make each criterion its own entry
-    const flattenedData = data.flatMap(round => 
-      round.Criteria.map(criteria => ({
-        roundId: round.id,
-        roundName: round.name,
-        criteriaId: criteria.id,
-        criteriaName: criteria.criteriaName,
-        percentage: criteria.percentage
-      }))
-    );
-
-    criteriaAvailable.value = false; 
-    serverItemsRounds.value = flattenedData;
-    totalItemsRounds.value = count;
-  } catch (error) {
-    console.error('Unexpected error:', error.message);
-    isMatchRounds.value = true;
-  } finally {
-    isLoadingRounds.value = false;
-  }
-}
-
-
-// Handle page and items-per-page updates
-function handlePageUpdate(newPage) {
-    page.value = newPage;
-    fetchPageData();
-}
-
-function handleItemsPerPageUpdate(newItemsPerPage) {
-    itemsPerPage.value = newItemsPerPage;
-    fetchPageData();
-}
-
-// Watch for changes in search, page, or itemsPerPage
-watch([search, page, itemsPerPage], () => {
-    fetchPageData();
-});
-
-// Watch for changes in rounds
-watch([pageRounds, itemsPerPageRounds], () => {
-    fetchPageDataRounds();
-});
-
-// Initial fetch
-onMounted(() => {
-  fetchPageData();
-  fetchPageDataRounds();
-});
-
-
-
-// Function to delete a candidate
-async function deleteCandidate(id) {
-    try {
-
-      const confirmed = window.confirm("Are you sure you want the candidates?");
-      if (!confirmed) return;
-
-        const { error } = await supabase
-            .from('Contestants')
-            .delete()
-            .match({ id });
-
-        if (error) {
-            console.error('Error deleting candidate:', error.message);
-            return;
-        }
-
-        // Remove the candidate from the local state immediately
-        serverItems.value = serverItems.value.filter(candidate => candidate.id !== id);
-
-        $toast.info('Candidate deleted Successfully!', {
-            position: 'bottom-right',
-            duration: 8000
-        });
-    } catch (error) {
-        console.error('Error deleting candidate:', error.message);
-    }
-}
-
-
-// Function to delete a single criterion
-  async function deleteCriterion(criteriaId) {
-    try {
-      const { error } = await supabase
-        .from('Criteria') 
-        .delete()
-        .match({ id: criteriaId }); 
-      if (error) throw error;
-      // Optionally, log success or show a message
-      alert('Criterion deleted successfully');
-      // Refresh data after deletion
-      fetchPageDataRounds();
-    } catch (error) {
-      console.error('Error deleting criterion:', error.message);
-    }
-  }
-
-
-
-// Function to reset (delete all) candidates
-async function resetCandidates() {
-  try {
-    // Show a confirmation dialog before proceeding
-    const confirmed = window.confirm("Are you sure you want to delete all candidates?");
-    if (!confirmed) return;
-
-    // Deleting all candidates from the 'Contestants' table
-    const { error } = await supabase.from('Contestants').delete().neq('id', 0);
-
-    if (error) throw new Error(error.message);
-
-    // Clear the serverItems array and update the roundAvailable state
-    $toast.info('All Candidates Deleted Successfully',{
-      position: 'bottom-right',
-      duration: 8000
-    })
-    serverItems.value = [];
-    roundAvailable.value = true;
-
-  } catch (error) {
-    console.error('Error deleting all candidates:', error.message);
-  }
-}
-
-
-
-  // Delete Round
-  async function deleteRound(id) {
-  try {
-
-    const confirmed = window.confirm("Are you sure you want to the Round?");
-    if (!confirmed) return;
-
-    const { error } = await supabase
-      .from('Round') 
-      .delete()
-      .match({ id }); 
-
-    if (error) throw error;
-    
-    // Remove the candidate from the local state immediately
-    serverItemsRounds.value = serverItemsRounds.value.filter(round => round.roundId !== id);
-
-    $toast.info('Round and Criterias deleted Successfully!',{
-      position: 'bottom-right',
-      duration: 8000
-      })
-    // Refresh the rounds data
-    fetchPageDataRounds();
-  } catch (error) {
-    console.error('Error deleting round:', error.message);
-  }
-  }
-
-
-  
-// Add criteria logic
-function addCriteria() {
-  // Calculate the current total percentage
-  const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
-
-  console.log("Total Percentage before adding:", totalPercentage); // 
-  
-  const tolerance = 0.01;
-
-  // Check if adding another 20% would exceed 100%
-  if (newRound.value.criteria.length < 5 && totalPercentage + 20 <= 100 + tolerance) {
-    // Add a new criterion with a default percentage of 20
-    newRound.value.criteria.push({ criteriaName: '', percentage: 20 });
-    console.log("Added new criteria. Total Percentage now:", newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0)); // Log after addition
-  } else if (newRound.value.criteria.length >= 5) {
-    // Show warning if criteria limit is reached
-    $toast.warning('You can only add up to 5 criteria', {
-      position: 'bottom-right',
-      duration: 8000,
-    });
+  // Limit the number of criteria per round to 5
+  if (round.criteria.length < 5) {
+    round.criteria.push({ criteriaName: '', percentage: 20 });
   } else {
-    // Show warning if adding 20% would exceed 100%
-    $toast.warning('Adding this criterion would exceed the 100% limit', {
-      position: 'bottom-right',
-      duration: 8000,
-    });
+    $toast.error('You can only add up to 5 criteria per round.');
   }
 }
 
-function updatePercentage(index, newPercentage) {
-  // Temporarily update the specified criterion's percentage for validation
-  const tempCriteria = [...newRound.value.criteria];
-  tempCriteria[index].percentage = newPercentage;
-
-  // Calculate the new total percentage
-  const totalPercentage = tempCriteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
-
-  console.log("Total Percentage during update:", totalPercentage); 
-  
-  const tolerance = 0.01;
-
-  if (totalPercentage <= 100 + tolerance) {
-    // Update if within limit
-    newRound.value.criteria[index].percentage = newPercentage;
-  } else {
-    // Show warning if updating would exceed 100
-    $toast.warning('The total percentage cannot exceed to 100%', {
-      position: 'bottom-right',
-      duration: 8000,
-    });
-  }
-}
-
-// Save Round
-async function saveRound() {
+async function saveEvent() {
   try {
-    // Calculate the total percentage of all criteria
-    const totalPercentage = newRound.value.criteria.reduce((sum, c) => sum + Math.round(c.percentage), 0);
-
-    console.log("Total Percentage during save:", totalPercentage); 
-
-    const tolerance = 0.01;
-
-    // Check if the total percentage exceeds 100%
-    if (totalPercentage > 100 + tolerance) {
-      // Show error message if the total percentage exceeds 100%
-      $toast.error('The total percentage cannot exceed 100%', {
-        position: 'bottom-right',
-        duration: 8000
-      });
-      
-      // Reset criteria and percentages to prevent invalid state
-      newRound.value.criteria = []; // Reset the criteria array
-      newRound.value.roundName = ''; // Optionally reset round name
-      newRound.value.roundId = ''; // Optionally reset round ID
-      newRound.value.candidateInput = ''; // Optionally reset candidate input
-
-      return; // Prevent saving the round and allow the user to start over
+    // Validate criteria percentages
+    for (const round of newEvent.value.rounds) {
+      const totalPercentage = round.criteria.reduce((sum, crit) => sum + crit.percentage, 0);
+      if (totalPercentage !== 100) {
+        $toast.error(`Criteria percentages in round "${round.name}" must sum to 100%.`);
+        return;
+      }
     }
 
-    // Convert IDs to numbers
-    const roundId = parseInt(newRound.value.roundId, 10);
-    if (isNaN(roundId)) {
-      throw new Error('Round ID must be a number');
-    }
-
-    // Parse candidate input and convert to array of IDs
-    const candidateIds = newRound.value.candidateInput
-      .split(',')
-      .map(id => id.trim())
-      .filter(id => id !== '')
-      .map(id => parseInt(id, 10))
-      .filter(id => !isNaN(id));
-
-    // Insert round data
-    const { data: roundData, error: roundError } = await supabase
-      .from('Round')
+    // Event saving logic
+    const { data: eventData, error: eventError } = await supabase
+      .from('Event')
       .insert({
-        id: roundId,
-        name: newRound.value.roundName,
+        name: newEvent.value.name,
+        description: newEvent.value.description,
+        start_date: newEvent.value.start_date,
+        end_date: newEvent.value.end_date,
+        status: 'ongoing',
       })
+      .select()
       .single();
 
-    if (roundError) {
-      console.error('Error adding round:', roundError.message);
-      alert('Failed to add round. Please try again.');
-      return;
+    if (eventError) throw eventError;
+    const eventId = eventData.id;
+
+    // Save contestants, rounds, and criteria
+    const contestantIds = [];
+    for (const contestant of newEvent.value.contestants) {
+      let photoUrl = null;
+
+    // Upload photo to Supabase Storage
+    if (contestant.photo) {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('candidate-photos') // Adjusted to match your folder name
+        .upload(`photos/${contestant.name}-${Date.now()}`, contestant.photo);
+
+      if (uploadError) {
+        console.error('Failed to upload photo:', uploadError.message);
+        $toast.error('Failed to upload contestant photo.');
+        return;
+      }
+
+      // Get the public URL of the uploaded photo
+      photoUrl = supabase.storage.from('candidate-photos').getPublicUrl(uploadData.path).data.publicUrl;
     }
 
-    // Insert associations in ContestantRound
-    const contestantRoundPromises = candidateIds.map(contestantId => {
-      return supabase
-        .from('ContestantRound')
+      const { data: contestantData, error: contestantError } = await supabase
+        .from('Contestants')
         .insert({
-          "Contestants_id": contestantId,
-          "Round_id": roundId
-        });
-    });
+          name: contestant.name,
+          age: contestant.age,
+          address: contestant.address,
+          course: contestant.course,
+          gender: contestant.gender,
+          photo: photoUrl,
+          event_id: eventId,
+        })
+        .select()
+        .single();
 
-    try {
-      await Promise.all(contestantRoundPromises);
-      console.log('All contestant-round associations added successfully');
-    } catch (contestantRoundError) {
-      console.error('Error adding contestant-round associations:', contestantRoundError.message);
-      return;
+      if (contestantError) throw contestantError;
+      contestantIds.push(contestantData.id);
     }
 
-    // Insert criteria, ensuring percentages are integers
-    const criteriaPromises = newRound.value.criteria.map(criterion => {
-      return supabase
-        .from('Criteria')
-        .insert({
-          criteriaName: criterion.criteriaName,
+    // Handle rounds and criteria
+    for (const round of newEvent.value.rounds) {
+      const { data: roundData } = await supabase.from('Round').insert({ name: round.name }).select().single();
+      const roundId = roundData.id;
+      await supabase.from('event_rounds').insert({ Event_id: eventId, Round_id: roundId });
+
+      for (const criterion of round.criteria) {
+        await supabase.from('Criteria').insert({ ...criterion, Round_id: roundId });
+      }
+
+      for (const contestantId of contestantIds) {
+        await supabase.from('ContestantRound').insert({
+          Contestants_id: contestantId,
           Round_id: roundId,
-          percentage: Math.round(criterion.percentage) // Round percentage before inserting
         });
-    });
-
-    try {
-      await Promise.all(criteriaPromises);
-      console.log('All criteria inserted successfully');
-    } catch (criteriaError) {
-      console.error('Error adding criteria:', criteriaError.message);
-      return;
+      }
     }
 
-    $toast.success('Round and associated data added successfully!', {
-      position: 'bottom-right',
-      duration: 8000
+    $toast.success('Event created successfully!');
+    closePopup();
+
+    // Automatically reload the events list
+    await fetchEvents(); // This will refresh the events list.
+  } catch (error) {
+    console.error(error);
+    $toast.error('Failed to save event.');
+  }
+}
+
+
+
+
+function resetForm() {
+  newEvent.value = {
+    name: '',
+    description: '',
+    start_date: '',
+    end_date: '',
+    contestants: [],
+    rounds: [],
+  };
+}
+
+async function updateEventStatusToEnded(eventId) {
+  try {
+    const { error } = await supabase
+      .from('Event')
+      .update({ status: 'ended' })
+      .eq('id', eventId);
+
+    if (error) throw error;
+    $toast.success('Event status updated to ended.');
+  } catch (error) {
+    console.error('Error updating event status:', error.message);
+    $toast.error('Failed to update event status.');
+  }
+}
+
+async function fetchEvents() {
+  try {
+    const { data, count, error } = await supabase
+      .from('Event')
+      .select(`
+        *,
+        event_rounds (
+          Round_id,
+          Round:Round_id (
+            id,
+            name
+          )
+        ),
+        Score (
+          Score,
+          Contestants:Contestants_id (id, name),
+          Round:Round_id (id, name),
+          Criteria:Criteria_id (criteriaName)
+        )
+      `, { count: 'exact' })
+      .order('id', { ascending: true }) // Ensure ascending order by event id
+      .range((pageEvents.value - 1) * itemsPerPageEvents.value, pageEvents.value * itemsPerPageEvents.value - 1);
+
+    isLoading.value = false;
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log(data); // Check the raw data structure
+
+    // Grouping data by rounds within each event
+    serverItemsEvents.value = data.map(event => {
+      event.rounds = event.event_rounds.map(round => round.Round);
+      // Now, group scores by round
+      event.roundScores = {};
+      event.event_rounds.forEach(round => {
+        const roundName = round.Round.name;
+        event.roundScores[roundName] = {
+          scores: [],
+          scoreHeaders: [{ text: 'Contestant Name', align: 'start' }, { text: 'Round Name', align: 'start' }]
+        };
+
+        // Group scores for the current round
+        event.Score.forEach(score => {
+          if (score.Round.name === roundName) {
+            const contestant = score.Contestants.name;
+            const scoreObj = {
+              contestantName: contestant,
+              roundName: roundName,
+              scores: { [score.Criteria.criteriaName]: score.Score },
+              totalScore: score.Score
+            };
+
+            // Add the score header if the criteria isn't added yet
+            if (!event.roundScores[roundName].scoreHeaders.some(header => header.text === score.Criteria.criteriaName)) {
+              event.roundScores[roundName].scoreHeaders.push({ text: score.Criteria.criteriaName, align: 'center' });
+            }
+
+            // Add the score for this contestant and round
+            event.roundScores[roundName].scores.push(scoreObj);
+          }
+        });
+      });
+
+      return event;
     });
 
-    // Refresh the rounds data and close the dialog
-    fetchPageDataRounds();
-    showDialog.value = false;
+    totalItemsEvents.value = count;
+
+    // Check if any event has passed its end date and needs to be marked as "ended"
+    const currentDate = new Date();
+    data.forEach(event => {
+      const endDate = new Date(event.end_date);
+      if (endDate < currentDate && event.status !== 'ended') {
+        updateEventStatusToEnded(event.id);
+      }
+    });
   } catch (error) {
-    console.error('Unexpected error:', error.message);
-    alert('An unexpected error occurred. Please try again.');
+    $toast.error('Error fetching events: ' + error.message);
   }
 }
 
-// Remove criteria function
-function removeCriteria(index) {
-  // Use splice to remove the criterion at the specified index
-  newRound.value.criteria.splice(index, 1);
-}
 
 
 
-  const uniqueRoundIds = computed(() => {
-    const roundIds = serverItemsRounds.value.map(item => item.roundId);
-    return [...new Set(roundIds)]; // Remove duplicates
+onMounted(() => {
+  fetchEvents();  // Fetch events initially
+
+  const intervalId = setInterval(fetchEvents, 60000);  // Re-fetch every 1 minute
+
+  // Cleanup the interval when component unmounts
+  onBeforeUnmount(() => {
+    clearInterval(intervalId);
   });
-
-  console.log('Server items for select:', serverItems.value.map(c => ({ text: c.name, value: c.id })));
-
-
-  watchEffect(() => {
-  if (serverItems.value.length === 0) {
-    roundAvailable.value = true;
-  } else {
-    roundAvailable.value = false;
-  }
 });
 
+
+// Call this function when the component is mounted or after inserting a new event
+fetchEvents();
+
+// Fetch event details including scores when the button is clicked
+async function viewScores(eventId) {
+  try {
+      const { data, error } = await supabase
+    .from('Score')
+    .select(`
+      Score,
+      Contestants:Contestants_id (id, name),
+      Round:Round_id (id, name),
+      Criteria:Criteria_id (id, criteriaName),
+      Users:Users_id (id, name)  // Make sure to reference 'Users_id' for judge information
+    `)
+    .eq('Event_id', eventId);
+
+  if (error) {
+    console.error('Error fetching scores:', error);
+    return;
+  }
+
+// Continue processing the scores...
+
+
+    // Initialize a structure to group scores by round and contestant
+    const groupedScores = {};
+
+    data.forEach((entry) => {
+      const { Round, Contestants, Criteria, Score } = entry;
+      const roundName = Round.name;
+      const contestantName = Contestants.name;
+      const criteriaName = Criteria.criteriaName;
+
+      // Initialize round group if not present
+      if (!groupedScores[roundName]) {
+        groupedScores[roundName] = {
+          roundName,
+          scores: {}
+        };
+      }
+
+      // Initialize contestant group if not present
+      if (!groupedScores[roundName].scores[contestantName]) {
+        groupedScores[roundName].scores[contestantName] = {
+          contestantName,
+          scores: {},
+          totalScore: 0
+        };
+      }
+
+      // Add or accumulate the score for the criteria
+      groupedScores[roundName].scores[contestantName].scores[criteriaName] =
+        (groupedScores[roundName].scores[contestantName].scores[criteriaName] || 0) + Score;
+
+      // Update total score
+      groupedScores[roundName].scores[contestantName].totalScore += Score;
+    });
+
+    // Transform grouped scores for rendering in the template
+    eventScores.value = Object.values(groupedScores).map((round) => ({
+      roundName: round.roundName,
+      scores: Object.values(round.scores) // Convert object to array
+    }));
+
+    showScoresPopup.value = true;
+  } catch (error) {
+    console.error('Error processing scores:', error);
+  }
+}
+
+async function closeEvent(eventId) {
+  try {
+    // Update the event status to "ended"
+    const confirmed = window.confirm("Are you sure you to Close the Event? Judges would not be able to submit a score in this event!");
+    if (!confirmed) return;
+
+    const { error } = await supabase
+      .from('Event')
+      .update({ status: 'ended' })
+      .eq('id', eventId);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    $toast.success('Event closed successfully!');
+    // Refresh the events list to reflect the status change
+    await fetchEvents();
+  } catch (error) {
+    console.error('Error closing event:', error.message);
+    $toast.error('Failed to close the event. Please try again.');
+  }
+}
+
+// Close the scores popup
+function closeScoresPopup() {
+  showScoresPopup.value = false;
+}
+
+// Function to handle PDF download
+function downloadPDF() {
+  const doc = new jsPDF();
+  let yPosition = 20; // Initial position for text in the PDF
+
+  // Title
+  doc.setFontSize(18);
+  doc.text('Scores Submitted', 14, yPosition);
+  yPosition += 10;
+
+  // Table Headers
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+
+  // Get criteria headers dynamically from the first score entry
+  const headers = ['Contestant Name', 'Round Name', ...Object.keys(eventScores.value[0].scores[0].scores), 'Total Score'];
+
+  // Prepare data for the table (each row contains contestant name, round name, scores for each criterion, and total score)
+  const data = [];
+
+  eventScores.value.forEach(round => {
+    round.scores.forEach(scoreEntry => {
+      const row = [
+        scoreEntry.contestantName,
+        round.roundName,
+        ...Object.keys(scoreEntry.scores).map(criterion => scoreEntry.scores[criterion] || 'No Score'),
+        Object.values(scoreEntry.scores).reduce((sum, score) => sum + score, 0)
+      ];
+      data.push(row);
+    });
+  });
+
+  // Table styling and generation using autoTable
+  doc.autoTable({
+    head: [headers],
+    body: data,
+    startY: yPosition + 10,
+    theme: 'striped',
+    headStyles: {
+      fillColor: [92, 47, 145], // Purple color for headers
+      textColor: [255, 255, 255], // White text
+      fontStyle: 'bold',
+    },
+    bodyStyles: {
+      fontSize: 10,
+      lineColor: [92, 47, 145], // Purple border for table cells
+      lineWidth: 0.1,
+    },
+    margin: { top: 10, left: 14 },
+    columnStyles: {
+      0: { cellWidth: 30 },
+      1: { cellWidth: 30 },
+    }
+  });
+
+  // Save the PDF with a filename
+  doc.save('scores.pdf');
+}
+
+
+// Function to handle printing
+function printScores() {
+  try {
+    let printContent = `
+      <div style="font-family: Arial, sans-serif; margin: 20px;">
+        <h2 style="text-align: center; color: #5c2f91;">Event Scores</h2>
+    `;
+
+    // Loop through each round in eventScores to create separate tables
+    eventScores.value.forEach((round) => {
+      printContent += `
+        <h3 style="color: #5c2f91; margin-top: 20px;">Round: ${round.roundName}</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
+          <thead style="background-color: #5c2f91; opacity: 0.6;">
+            <tr>
+              <th style="text-align: left; padding: 8px; color: white; font-weight: bold; border: 1px solid white;">Contestant Name</th>
+      `;
+
+      // Dynamically add headers for each criterion
+      Object.keys(round.scores[0].scores).forEach((criteria) => {
+        printContent += `
+          <th style="text-align: center; padding: 8px; color: white; font-weight: bold; border: 1px solid white;">${criteria}</th>
+        `;
+      });
+
+      // Add Total Score header
+      printContent += `
+              <th style="text-align: center; padding: 8px; color: white; font-weight: bold; border: 1px solid white;">Total Score</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      // Add rows for each contestant in the round
+      round.scores.forEach((scoreEntry) => {
+        printContent += `
+          <tr>
+            <td style="padding: 8px; border: 1px solid #ddd;">${scoreEntry.contestantName}</td>
+        `;
+
+        // Add scores for each criterion
+        Object.keys(scoreEntry.scores).forEach((criteria) => {
+          const score = scoreEntry.scores[criteria] || 'No Score';
+          printContent += `
+            <td style="text-align: center; padding: 8px; border: 1px solid #ddd;">${score}</td>
+          `;
+        });
+
+        // Calculate and add the total score
+        const totalScore = Object.values(scoreEntry.scores).reduce(
+          (sum, score) => sum + score,
+          0
+        );
+        printContent += `
+            <td style="text-align: center; padding: 8px; border: 1px solid #ddd;">${totalScore}</td>
+          </tr>
+        `;
+      });
+
+      // Close the table for the round
+      printContent += `
+          </tbody>
+        </table>
+      `;
+    });
+
+    // Close the container div
+    printContent += `
+      </div>
+    `;
+
+    // Print the content
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.print();
+  } catch (error) {
+    console.error('Error printing scores:', error);
+  }
+}
+
+// Function to delete an event and its connected data
+async function deleteEvent(eventId) {
+  try {
+    // Confirm with the user before deletion
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this event? This action is irreversible and will remove all associated data."
+    );
+
+    if (!confirmed) return; // Exit if the user cancels the operation
+
+    // Proceed with deletion
+    const { error } = await supabase
+      .from('Event')
+      .delete()
+      .eq('id', eventId); // Match the event by its ID
+
+    if (error) throw new Error(`Failed to delete event: ${error.message}`);
+
+    $toast.success('Event and its associated data were successfully deleted.');
+
+    // Refresh the events list after deletion
+    await fetchEvents();
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting event:', error.message);
+    $toast.error(`Failed to delete the event: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
 </script>
+
+
+<style scoped>
+
+.cancel-button {
+  position: sticky; /* Position relative to the v-card */
+  top: 20px;          /* Align with the top */
+  left: 680px;        /* Align with the right */
+  z-index: 10;        /* Ensure it is above other elements */
+}
+
+
+.close-button {
+  position: sticky; /* Position the button relative to the v-card */
+  top: 30px;          /* Adjust vertical position */
+  left: 1355px;        /* Adjust horizontal position */
+  z-index: 10;        /* Ensure it's above all other content */
+}
+
+.v-data-table {
+  border-collapse: collapse;
+  border: .5px solid grey; /* Example: change border color to green */
+}
+
+.v-data-table thead {
+  background-color: black;
+  opacity: 60%;
+  color: red !important; /* White text */
+}
+
+.thead th{
+  background-color: #9e71d1;
+}
+
+.v-data-table tbody tr:hover {
+  background-color: #DCDCDC; /* Light green background on hover */
+}
+
+.text-green {
+  color: green;
+}
+
+.text-red {
+  color: red;
+}
+/* Optional: You can add some styles here to ensure visibility */
+.v-breadcrumbs .v-breadcrumb {
+  color: #000; /* Make sure text is visible */
+}
+</style>

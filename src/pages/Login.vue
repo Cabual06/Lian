@@ -1,13 +1,11 @@
 <template>
   <v-app style="background-color: #f2f2f2">
-    <v-container fluid class="fill-height">
-      <v-row class="">
+      <v-row>
         <!-- Left Column: Image -->
         <v-col
           cols="12"
           md="6"
           class="d-flex justify-center"
-
         >
           <img
             src="/src/assets/bg2.png"
@@ -19,9 +17,9 @@
         <!-- Right Column: Login Form -->
         <v-col cols="12" md="6" class="d-flex align-center justify-center bg-white">
           <v-card
-            class="pa-12"
+            class="pa-10"
             elevation="6"
-            width="55%"
+            width="47%"
             rounded="lg"
           >
             <div class="text-center mb-6">
@@ -66,7 +64,7 @@
             ></v-text-field>
 
             <v-btn
-              class="mb-4 mt-2 font-weight-bold"
+              class="mb-2 mt-2 font-weight-bold"
               color="purple"
               size="large"
               variant="flat"
@@ -100,7 +98,6 @@
           </v-card>
         </v-col>
       </v-row>
-    </v-container>
   </v-app>
 </template>
 

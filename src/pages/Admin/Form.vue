@@ -266,7 +266,7 @@
             <td>{{ formatDate(event.start_date) }}</td>
             <td>{{ formatDate(event.end_date) }}</td>
 
-            <td :class="{'text-green': event.status === 'ongoing', 'text-red': event.status === 'ended'}">
+            <td :class="{'text-green': event.status === 'ongoing', 'text-yellow': event.status === 'upcoming','text-red': event.status === 'ended'}">
             {{ event.status }}
           </td>
           <!-- Modify this section in your table -->
@@ -350,6 +350,7 @@ import 'jspdf-autotable';
 import { useToast } from 'vue-toast-notification';
 import { supabase } from '@/lib/supabaseClient';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+
 const $toast = useToast();
 const isLoading = ref(true);
 const isMatchRounds = ref(false);
@@ -394,7 +395,8 @@ const dateFormatRule = (value) => {
 
 function formatDate(dateString) {
   const date = new Date(dateString);
-  return date.toISOString().split('T')[0]; // Formats date as 'YYYY-MM-DD'
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000); // Adjust for local timezone
+  return localDate.toISOString().split('T')[0]; // Formats date as 'YYYY-MM-DD'
 }
 
 
@@ -451,6 +453,17 @@ async function saveEvent() {
       }
     }
 
+    // Determine the initial status based on dates
+    const currentDate = new Date();
+    const startDate = new Date(newEvent.value.start_date);
+    const endDate = new Date(newEvent.value.end_date);
+    let initialStatus = 'upcoming';
+    if (currentDate >= startDate && currentDate <= endDate) {
+      initialStatus = 'ongoing';
+    } else if (currentDate > endDate) {
+      initialStatus = 'ended';
+    }
+
     // Event saving logic
     const { data: eventData, error: eventError } = await supabase
       .from('Event')
@@ -459,7 +472,7 @@ async function saveEvent() {
         description: newEvent.value.description,
         start_date: newEvent.value.start_date,
         end_date: newEvent.value.end_date,
-        status: 'ongoing',
+        status: initialStatus,
       })
       .select()
       .single();
@@ -467,26 +480,26 @@ async function saveEvent() {
     if (eventError) throw eventError;
     const eventId = eventData.id;
 
-    // Save contestants, rounds, and criteria
+    // Save contestants, rounds, and criteria (existing logic continues)
     const contestantIds = [];
     for (const contestant of newEvent.value.contestants) {
       let photoUrl = null;
 
-    // Upload photo to Supabase Storage
-    if (contestant.photo) {
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('candidate-photos') // Adjusted to match your folder name
-        .upload(`photos/${contestant.name}-${Date.now()}`, contestant.photo);
+      // Upload photo to Supabase Storage
+      if (contestant.photo) {
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('candidate-photos')
+          .upload(`photos/${contestant.name}-${Date.now()}`, contestant.photo);
 
-      if (uploadError) {
-        console.error('Failed to upload photo:', uploadError.message);
-        $toast.error('Failed to upload contestant photo.');
-        return;
+        if (uploadError) {
+          console.error('Failed to upload photo:', uploadError.message);
+          $toast.error('Failed to upload contestant photo.');
+          return;
+        }
+
+        // Get the public URL of the uploaded photo
+        photoUrl = supabase.storage.from('candidate-photos').getPublicUrl(uploadData.path).data.publicUrl;
       }
-
-      // Get the public URL of the uploaded photo
-      photoUrl = supabase.storage.from('candidate-photos').getPublicUrl(uploadData.path).data.publicUrl;
-    }
 
       const { data: contestantData, error: contestantError } = await supabase
         .from('Contestants')
@@ -506,7 +519,7 @@ async function saveEvent() {
       contestantIds.push(contestantData.id);
     }
 
-    // Handle rounds and criteria
+    // Handle rounds and criteria (existing logic continues)
     for (const round of newEvent.value.rounds) {
       const { data: roundData } = await supabase.from('Round').insert({ name: round.name }).select().single();
       const roundId = roundData.id;
@@ -528,15 +541,12 @@ async function saveEvent() {
     closePopup();
 
     // Automatically reload the events list
-    await fetchEvents(); // This will refresh the events list.
+    await fetchEvents();
   } catch (error) {
     console.error(error);
     $toast.error('Failed to save event.');
   }
 }
-
-
-
 
 function resetForm() {
   newEvent.value = {
@@ -557,13 +567,47 @@ async function updateEventStatusToEnded(eventId) {
       .eq('id', eventId);
 
     if (error) throw error;
-    $toast.success('Event status updated to ended.');
+
+    // Find the event in serverItemsEvents and update its status
+    const event = serverItemsEvents.value.find(e => e.id === eventId);
+    if (event) {
+      event.status = 'ended'; // Update the local status
+    }
+
   } catch (error) {
     console.error('Error updating event status:', error.message);
     $toast.error('Failed to update event status.');
   }
 }
 
+// Function to manually check and update the event status to "ongoing"
+async function updateEventStatusToOngoing(eventId, startDate) {
+  const currentDate = new Date().toISOString().split('T')[0];
+  const eventStartDate = new Date(startDate).toISOString().split('T')[0];
+
+  if (currentDate === eventStartDate) {
+    try {
+      const { error } = await supabase
+        .from('Event')
+        .update({ status: 'ongoing' })
+        .eq('id', eventId);
+
+      if (error) throw error;
+
+      // Find the event in serverItemsEvents and update its status
+      const event = serverItemsEvents.value.find(e => e.id === eventId);
+      if (event) {
+        event.status = 'ongoing'; // Update the local status
+      }
+
+    } catch (error) {
+      console.error('Error updating event status to ongoing:', error.message);
+      $toast.error('Failed to update event status.');
+    }
+  }
+}
+
+// Modify the fetchEvents function to include the status update check
 async function fetchEvents() {
   try {
     const { data, count, error } = await supabase
@@ -584,7 +628,7 @@ async function fetchEvents() {
           Criteria:Criteria_id (criteriaName)
         )
       `, { count: 'exact' })
-      .order('id', { ascending: true }) // Ensure ascending order by event id
+      .order('id', { ascending: true })
       .range((pageEvents.value - 1) * itemsPerPageEvents.value, pageEvents.value * itemsPerPageEvents.value - 1);
 
     isLoading.value = false;
@@ -593,12 +637,18 @@ async function fetchEvents() {
       throw new Error(error.message);
     }
 
-    console.log(data); // Check the raw data structure
+    // Update the status of each event
+    data.forEach(event => {
+      updateEventStatusToOngoing(event.id, event.start_date);
+      const endDate = new Date(event.end_date);
+      if (endDate < new Date() && event.status !== 'ended') {
+        updateEventStatusToEnded(event.id);
+      }
+    });
 
-    // Grouping data by rounds within each event
+    // Now group data by rounds and scores (same as before)
     serverItemsEvents.value = data.map(event => {
       event.rounds = event.event_rounds.map(round => round.Round);
-      // Now, group scores by round
       event.roundScores = {};
       event.event_rounds.forEach(round => {
         const roundName = round.Round.name;
@@ -607,7 +657,6 @@ async function fetchEvents() {
           scoreHeaders: [{ text: 'Contestant Name', align: 'start' }, { text: 'Round Name', align: 'start' }]
         };
 
-        // Group scores for the current round
         event.Score.forEach(score => {
           if (score.Round.name === roundName) {
             const contestant = score.Contestants.name;
@@ -618,12 +667,10 @@ async function fetchEvents() {
               totalScore: score.Score
             };
 
-            // Add the score header if the criteria isn't added yet
             if (!event.roundScores[roundName].scoreHeaders.some(header => header.text === score.Criteria.criteriaName)) {
               event.roundScores[roundName].scoreHeaders.push({ text: score.Criteria.criteriaName, align: 'center' });
             }
 
-            // Add the score for this contestant and round
             event.roundScores[roundName].scores.push(scoreObj);
           }
         });
@@ -633,33 +680,10 @@ async function fetchEvents() {
     });
 
     totalItemsEvents.value = count;
-
-    // Check if any event has passed its end date and needs to be marked as "ended"
-    const currentDate = new Date();
-    data.forEach(event => {
-      const endDate = new Date(event.end_date);
-      if (endDate < currentDate && event.status !== 'ended') {
-        updateEventStatusToEnded(event.id);
-      }
-    });
   } catch (error) {
     $toast.error('Error fetching events: ' + error.message);
   }
 }
-
-
-
-
-onMounted(() => {
-  fetchEvents();  // Fetch events initially
-
-  const intervalId = setInterval(fetchEvents, 60000);  // Re-fetch every 1 minute
-
-  // Cleanup the interval when component unmounts
-  onBeforeUnmount(() => {
-    clearInterval(intervalId);
-  });
-});
 
 
 // Call this function when the component is mounted or after inserting a new event
@@ -827,7 +851,7 @@ function printScores() {
   try {
     let printContent = `
       <div style="font-family: Arial, sans-serif; margin: 20px;">
-        <h2 style="text-align: center; color: #5c2f91;">Event Scores</h2>
+        <h1 style="text-align: center; color: #5c2f91;">Event Scores</h1>
     `;
 
     // Loop through each round in eventScores to create separate tables
@@ -835,7 +859,7 @@ function printScores() {
       printContent += `
         <h3 style="color: #5c2f91; margin-top: 20px;">Round: ${round.roundName}</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px;">
-          <thead style="background-color: #5c2f91; opacity: 0.6;">
+          <thead style="background-color: #9D82BD; opacity: 100;">
             <tr>
               <th style="text-align: left; padding: 8px; color: white; font-weight: bold; border: 1px solid white;">Contestant Name</th>
       `;
@@ -895,13 +919,24 @@ function printScores() {
 
     // Print the content
     const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <style>
+        table thead {
+          background-color: #9D82BD !important;
+        }
+      </style>
+    `);
     printWindow.document.write(printContent);
+    printWindow.document.body.style.fontFamily = 'Arial, sans-serif';
+    printWindow.document.body.style.fontSize = '12px';
     printWindow.document.close();
     printWindow.print();
   } catch (error) {
     console.error('Error printing scores:', error);
   }
 }
+
+
 
 // Function to delete an event and its connected data
 async function deleteEvent(eventId) {
@@ -984,4 +1019,11 @@ async function deleteEvent(eventId) {
 .v-breadcrumbs .v-breadcrumb {
   color: #000; /* Make sure text is visible */
 }
+
+.text-yellow{
+  color: yellow;
+}
+
+
+
 </style>

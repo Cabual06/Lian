@@ -12,6 +12,7 @@
     "@supabase/supabase-js": "^2.46.1",
     "chart.js": "^4.4.6",
     "core-js": "^3.37.1",
+    "date-fns": "^4.1.0",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "nodemailer": "^6.9.14",

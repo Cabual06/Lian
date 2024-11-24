@@ -1,126 +1,141 @@
 <template>
-  <v-app>
-    <div class="pt-8">
-  
-      <div class="text-center pt-16 mt-12 pb-2">
-        <span class="text-h3 font-weight-bold"><span class="text-h3 text-purple font-weight-bold">C</span>REATE ACCOUNT</span>
-      </div>
-  
-      <v-card
-        class="mx-auto pa-10 pb-8 mt-10"
-        elevation="8"
-        max-width="435"
-        rounded="lg"
-      >
-        <div class="text-subtitle-1 text-medium-emphasis">Account</div>
-  
-        <v-text-field
-          density="comfortable"
-          placeholder="Name"
-          prepend-inner-icon="mdi mdi-account"
-          variant="outlined"
-          v-model="name"
-        ></v-text-field>
-  
-        <v-text-field
-          density="comfortable"
-          placeholder="Email address"
-          prepend-inner-icon="mdi-email-outline"
-          variant="outlined"
-          v-model="email"
-        ></v-text-field>
-        
-        <v-text-field
-          density="comfortable"
-          placeholder="Phone Number"
-          prepend-inner-icon="mdi-email-outline"
-          variant="outlined"
-          v-model="phone"
-        ></v-text-field>
-  
-        <v-text-field
-          density="comfortable"
-          placeholder="Address"
-          prepend-inner-icon="mdi-email-outline"
-          variant="outlined"
-          v-model="address"
-        ></v-text-field>
-  
-        <!-- <v-combobox
-          label="Course"
-          density="comfortable"
-          prepend-inner-icon="mdi mdi-book-open"
-          variant="outlined"
-          v-model="course"
-          :items="['DDAT', 'DSET', 'BSIT', 'BSBA', 'BOXER']"
-        ></v-combobox> -->
-  
-        <v-text-field
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-          :type="visible ? 'text' : 'password'"
-          density="comfortable"
-          placeholder="Enter your password"
-          prepend-inner-icon="mdi-lock-outline"
-          variant="outlined"
-          v-model="password"
-          @click:append-inner="visible = !visible"
-        ></v-text-field>
-  
+  <v-app style="background-color: #f2f2f2">
+    <v-row>
+      <v-col
+          cols="12"
+          md="6"
+          class="d-flex justify-center"
+        >
+          <img
+            src="/src/assets/bg2.png"
+            alt="Login Illustration"
+            style="max-width: 90%; height: 100%;"
+          />
+        </v-col>
+
+        <v-col cols="12" md="6" class="d-flex align-center justify-center bg-white">
         <v-card
-          v-if="error"
-          class="mb-6"
-          color="surface-variant"
-          variant="tonal"
-        >
-          <v-card-text class="text-medium-emphasis text-caption bg-red">
-            {{ error }}
-          </v-card-text>
-        </v-card>
-  
-        <v-card
-          v-if="success"
-          class="mb-6 text-black"
-          color="surface-variant"
-          variant="tonal"
-        >
-          <v-card-text class="text-medium-emphasis text-caption bg-green">
-            {{ success }}
-          </v-card-text>
-        </v-card>
-  
-        <v-btn
-          class="mb-4 font-weight-bold"
-          color="purple"
-          size="large"
-          variant="flat"
-          block
-          @click="signup"
-        >
-          SignUp
-        </v-btn>
-  
-        <v-card-text class="text-center">
-          <a
-            class="text-blue text-decoration-none"
-            href="#"
-            rel="noopener noreferrer"
-            target=""
+            class="mx-auto pa-10 pb-8 mt-10"
+            elevation="8"
+            width="47%"
+            rounded="lg"
           >
-            <RouterLink to="/Login" class="text-decoration-none">LogIn now <v-icon icon="mdi-chevron-right"></v-icon></RouterLink>
-          </a>
-        </v-card-text>
-  
-        <v-progress-linear
-          :active="loading"
-          :indeterminate="loading"
-          color="purple"
-          absolute
-          bottom
-        ></v-progress-linear>
-  
-      </v-card>
-  
-    </div>
+
+           <div class="text-center mb-6">
+              <h3 class="font-weight-bold">
+                <span class="text-purple mb-6"></span>Create Account
+              </h3>
+            </div>
+
+            <div class="text-subtitle-1 text-medium-emphasis">Account</div>
+      
+            <v-text-field
+              density="comfortable"
+              placeholder="Name"
+              prepend-inner-icon="mdi mdi-account"
+              variant="outlined"
+              v-model="name"
+            ></v-text-field>
+      
+            <v-text-field
+              density="comfortable"
+              placeholder="Email address"
+              prepend-inner-icon="mdi-email-outline"
+              variant="outlined"
+              v-model="email"
+            ></v-text-field>
+            
+            <v-text-field
+              density="comfortable"
+              placeholder="Phone Number"
+              prepend-inner-icon="mdi-email-outline"
+              variant="outlined"
+              v-model="phone"
+            ></v-text-field>
+      
+            <v-text-field
+              density="comfortable"
+              placeholder="Address"
+              prepend-inner-icon="mdi-email-outline"
+              variant="outlined"
+              v-model="address"
+            ></v-text-field>
+      
+            <!-- <v-combobox
+              label="Course"
+              density="comfortable"
+              prepend-inner-icon="mdi mdi-book-open"
+              variant="outlined"
+              v-model="course"
+              :items="['DDAT', 'DSET', 'BSIT', 'BSBA', 'BOXER']"
+            ></v-combobox> -->
+      
+            <v-text-field
+              :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+              :type="visible ? 'text' : 'password'"
+              density="comfortable"
+              placeholder="Enter your password"
+              prepend-inner-icon="mdi-lock-outline"
+              variant="outlined"
+              v-model="password"
+              @click:append-inner="visible = !visible"
+            ></v-text-field>
+      
+            <v-card
+              v-if="error"
+              class="mb-6"
+              color="surface-variant"
+              variant="tonal"
+            >
+              <v-card-text class="text-medium-emphasis text-caption bg-red">
+                {{ error }}
+              </v-card-text>
+            </v-card>
+      
+            <v-card
+              v-if="success"
+              class="mb-6 text-black"
+              color="surface-variant"
+              variant="tonal"
+            >
+              <v-card-text class="text-medium-emphasis text-caption bg-green">
+                {{ success }}
+              </v-card-text>
+            </v-card>
+      
+            <v-btn
+              class="mb-2 font-weight-bold"
+              color="purple"
+              size="large"
+              variant="flat"
+              block
+              @click="signup"
+            >
+              SignUp
+            </v-btn>
+      
+            <v-card-text class="text-center">
+              <a
+                class="text-blue text-decoration-none"
+                href="#"
+                rel="noopener noreferrer"
+                target=""
+              >
+                <RouterLink to="/Login" class="text-decoration-none">LogIn now <v-icon icon="mdi-chevron-right"></v-icon></RouterLink>
+              </a>
+            </v-card-text>
+      
+            <v-progress-linear
+              :active="loading"
+              :indeterminate="loading"
+              color="purple"
+              absolute
+              bottom
+            ></v-progress-linear>
+      
+          </v-card>
+        </v-col>
+    </v-row>
   </v-app>
   </template>
   

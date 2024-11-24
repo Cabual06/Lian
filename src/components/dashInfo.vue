@@ -4,7 +4,7 @@
             <v-card variant="tonal" width="380px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalItems }}</h1>
-                    <p class="font-weight-bold">Registered Judges</p>
+                    <p class="font-weight-bold text-green">Registered Judges</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -15,7 +15,7 @@
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalCandidates }}</h1>
-                    <p class="font-weight-bold">Total Candidates</p>
+                    <p class="font-weight-bold text-green">Total Candidates</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -26,7 +26,7 @@
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalEvents }}</h1>
-                    <p class="font-weight-bold">No. Events</p>
+                    <p class="font-weight-bold text-green">No. Events</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>
@@ -37,7 +37,7 @@
             <v-card variant="tonal" width="360px" height="auto" class="py-4 px-10 d-flex mx-auto">
                 <v-card-item class="text-center">
                     <h1 class="text-h2 font-weight-bold mb-2">{{ totalOngoingEvents }}</h1>
-                    <p class="font-weight-bold">Ongoing Events</p>
+                    <p class="font-weight-bold text-green">Ongoing Events</p>
                 </v-card-item>
                 <v-spacer></v-spacer>
                 <v-card-item>

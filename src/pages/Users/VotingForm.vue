@@ -110,7 +110,7 @@
                     <!-- Display event status -->
                     <v-chip
                       v-if="event.status"
-                      :color="event.status === 'ongoing' ? 'green' : 'red'"
+                      :color="event.status === 'ongoing' ? 'green' : event.status === 'upcoming' ? 'yellow' : 'red'"
                       class="ml-2 font-weight-bold"
                     >
                       {{ event.status.charAt(0).toUpperCase() + event.status.slice(1) }}
@@ -229,7 +229,7 @@
           </v-card-text>
 
           <v-card-actions class="mb-6">
-            <v-btn color="white" class="bg-green mr-10" @click="submitScores" :disabled="selectedEvent?.status === 'ended'">
+            <v-btn color="white" class="bg-green mr-10" @click="submitScores" :disabled="selectedEvent?.status === 'ended' || selectedEvent?.status === 'upcoming'">
               Submit Scores
             </v-btn>
           </v-card-actions>
@@ -365,19 +365,12 @@ async function fetchEvents() {
   }
 }
 
-function formatDate(date) {
-  if (!date) return 'N/A';
-  const parsedDate = new Date(date);
-  return parsedDate.toLocaleString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true, // Optional: Use 12-hour format
-    timeZone: 'UTC' // Adjust timezone as needed
-  });
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000); // Adjust for local timezone
+  return localDate.toISOString().split('T')[0]; // Formats date as 'YYYY-MM-DD'
 }
+
 
 // Logout Function
 async function logout() {
@@ -596,6 +589,7 @@ async function handleCardClick(event) {
   // Show the dialog after loading animation and data fetching
   dialogVisible.value = true;
 }
+
 
 
 onMounted(() => {

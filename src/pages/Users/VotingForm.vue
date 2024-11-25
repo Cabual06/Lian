@@ -1,14 +1,21 @@
 <template>
     <v-responsive>
-        <v-toolbar class="border-b-sm px-16 py-2" style="background-color: #8654bf ;">
-            
-            <v-toolbar-title>
-                <span class="text-black font-weight-bold text-h6">TABULATION</span>  
-                <span> SYSTEM</span>
-            </v-toolbar-title>
+      <v-toolbar class="border-b-sm px-16 py-2" style="background-color: #8654bf;">
+        <v-toolbar-title>
+          <span class="text-black font-weight-bold text-h6">TABULATION</span>
+          <span> SYSTEM</span>
+        </v-toolbar-title>
 
-            <v-btn color="black" @click="logout" class="bg-white">Logout</v-btn>
-        </v-toolbar>
+        <v-spacer></v-spacer>
+
+        <!-- Display the account icon and user's email -->
+        <div class="d-flex align-center mr-4">
+          <v-icon color="white" class="mr-2">mdi-account-circle</v-icon>
+          <span class="text-white font-weight-bold">{{ userEmail }}</span>
+        </div>
+
+        <v-btn color="black" @click="logout" class="bg-white">Logout</v-btn>
+      </v-toolbar>
 
         <v-toolbar class="bg-white px-16 border-b-lg">
             <!-- <v-btn>
@@ -328,6 +335,7 @@ const dialogVisible = ref(false);
 const candidatesDialogVisible = ref(false);
 const contestants = ref([]);
 const loadingEvent = ref(null); // Track the event being loaded
+const userEmail = ref(''); 
 
 // Fetch the logged-in user's UUID
 async function fetchUserId() {
@@ -342,6 +350,18 @@ async function fetchUserId() {
     return null;
   }
 }
+
+async function fetchUserEmail() {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw error;
+
+    userEmail.value = data.user?.email || 'Guest'; // Set the email or default to 'Guest'
+  } catch (err) {
+    console.error('Error fetching user email:', err.message);
+  }
+}
+
 
 
 function generateScoreOptions(percentage) {
@@ -593,6 +613,7 @@ async function handleCardClick(event) {
 
 
 onMounted(() => {
+  fetchUserEmail();
   fetchEvents();
 });
 </script>

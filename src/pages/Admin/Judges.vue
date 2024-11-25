@@ -11,7 +11,7 @@
       </v-container>
       <v-breadcrumbs :items="['Home', 'Dashboard', 'Judges']" class=""></v-breadcrumbs>
       <!-- Edit User Dialog -->
-      <v-dialog v-model="editDialog" max-width="570px">
+      <v-dialog persistent v-model="editDialog" max-width="570px">
         <v-card class="rounded-lg px-6 py-4" style="background-color:;">
           <v-card-title class="text-h4 text-purple ml-2 mt-4 mb-2 font-weight-bold">Edit Judge</v-card-title>
           <v-card-text>
@@ -83,7 +83,7 @@
       <v-progress-linear v-if="isLoading" color="purple" height="6" indeterminate rounded></v-progress-linear>
 
       <v-empty-state
-        class="mt-16 pt-16"
+        class=""
         v-if="isMatch"
         icon="mdi-magnify"
         text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."

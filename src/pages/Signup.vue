@@ -7,6 +7,7 @@
           class="d-flex justify-center"
         >
           <img
+            class="pa-10"
             src="/src/assets/bg2.png"
             alt="Login Illustration"
             style="max-width: 90%; height: 100%;"

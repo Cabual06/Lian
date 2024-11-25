@@ -125,7 +125,7 @@
         <v-btn color="purple" class="mb-2 font-weight-bold" small @click="addRound">Add Round</v-btn>
         <div v-for="(round, roundIndex) in newEvent.rounds" :key="roundIndex" class="my-3">
           <v-text-field variant="outlined" v-model="round.name" label="Round Name" dense></v-text-field>
-          <v-btn color="primary" class="font-weight-bold" small @click="addCriterion(roundIndex)">Add Criterion</v-btn>
+          <v-btn color="primary" class="font-weight-bold mb-2" small @click="addCriterion(roundIndex)">Add Criteria</v-btn>
           <div v-for="(criterion, critIndex) in round.criteria" :key="critIndex" class="my-2">
             <v-row>
               <v-col cols="8">
@@ -237,78 +237,59 @@
       </v-container>
 
       <v-data-table-server
-          v-model:items-per-page="itemsPerPageEvents"
-        :items="serverItemsEvents"
-        :items-length="totalItemsEvents"
-        :page.sync="pageEvents"
-        fixed-header
-        theme="light rounded opacity-100"
-        class="bg-transparent"
-        @update:page="handlePageUpdateEvents"
-        @update:items-per-page="handleItemsPerPageUpdateEvents"
-      >
-        <thead class="opacity-100">
-          <tr>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event ID</th>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event Name</th>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Description</th>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Start Date</th>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">End Date</th>
-            <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Status</th>
-            <th class="text-center text-white font-weight-bold" style="background-color: #9e71d1;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="event in serverItemsEvents" :key="event.id" class="font-weight-bold">
-            <td>{{ event.id }}</td>
-            <td>{{ event.name }}</td>
-            <td>{{ event.description }}</td>
-            <td>{{ formatDate(event.start_date) }}</td>
-            <td>{{ formatDate(event.end_date) }}</td>
-
-            <td :class="{'text-green': event.status === 'ongoing', 'text-yellow': event.status === 'upcoming','text-red': event.status === 'ended'}">
+      v-model:items-per-page="itemsPerPageEvents"
+      :items="serverItemsEvents"
+      :items-length="totalItemsEvents"
+      :page.sync="pageEvents"
+      fixed-header
+      theme="light rounded opacity-100"
+      class="bg-transparent"
+      @update:page="handlePageUpdateEvents"
+      @update:items-per-page="handleItemsPerPageUpdateEvents"
+    >
+      <thead class="opacity-100">
+        <tr>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event ID</th>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Event Name</th>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Description</th>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Start Date</th>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">End Date</th>
+          <th class="text-left text-white font-weight-bold" style="background-color: #9e71d1;">Status</th>
+          <th class="text-center text-white font-weight-bold" style="background-color: #9e71d1;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="event in serverItemsEvents" :key="event.id" class="font-weight-bold">
+          <td>{{ event.id }}</td>
+          <td>{{ event.name }}</td>
+          <td>{{ event.description }}</td>
+          <td>{{ formatDate(event.start_date) }}</td>
+          <td>{{ formatDate(event.end_date) }}</td>
+          <td :class="{ 'text-green': event.status === 'ongoing', 'text-yellow': event.status === 'upcoming', 'text-red': event.status === 'ended' }">
             {{ event.status }}
           </td>
-          <!-- Modify this section in your table -->
           <td class="text-center">
-            <v-btn
-              @click="viewScores(event.id)" 
-              variant="flat" 
-              size="small" 
-              class="ma-2 font-weight-bold" 
-              color="primary"
-            >
-            <v-tooltip activator="parent" location="bottom">View Scores</v-tooltip>
+            <v-btn @click="viewScores(event.id)" variant="flat" size="small" class="ma-2 font-weight-bold" color="primary">
+              <v-tooltip activator="parent" location="bottom">View Scores</v-tooltip>
               <v-icon icon="mdi mdi-eye"></v-icon>
             </v-btn>
-            <v-btn 
-              @click="closeEvent(event.id)"
-              variant="flat" 
-              size="small" 
-              class="ma-2 font-weight-bold" 
-              color="green"
-            >
-            <v-tooltip activator="parent" location="bottom">End Event</v-tooltip>
+            <v-btn @click="closeEvent(event.id)" variant="flat" size="small" class="ma-2 font-weight-bold" color="green">
+              <v-tooltip activator="parent" location="bottom">End Event</v-tooltip>
               <v-icon icon="mdi mdi-close-circle-outline"></v-icon>
             </v-btn>
-            <v-btn 
-              @click="deleteEvent(event.id)" 
-              variant="flat" 
-              size="small" 
-              class="ma-2 font-weight-bold" 
-              color="red"
-            >
-            <v-tooltip activator="parent" location="bottom">Delete Event</v-tooltip>
-               <v-icon icon="mdi mdi-delete"></v-icon>
+            <v-btn @click="deleteEvent(event.id)" variant="flat" size="small" class="ma-2 font-weight-bold" color="red">
+              <v-tooltip activator="parent" location="bottom">Delete Event</v-tooltip>
+              <v-icon icon="mdi mdi-delete"></v-icon>
             </v-btn>
           </td>
-          </tr>
-        </tbody>
-      </v-data-table-server>
+        </tr>
+      </tbody>
+    </v-data-table-server>
+
       <v-progress-linear v-if="isLoading" color="purple" height="6" indeterminate rounded></v-progress-linear>
 
     <v-empty-state
-      class="mt-16 pt-16"
+      class=""
       v-if="isMatch"
       icon="mdi-magnify"
       text="Try restarting your connections. Sometimes less specific terms or broader queries can help you find what you're looking for."
@@ -351,9 +332,9 @@ import { useToast } from 'vue-toast-notification';
 import { supabase } from '@/lib/supabaseClient';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
+const isMatch = ref(false);
 const $toast = useToast();
 const isLoading = ref(true);
-const isMatchRounds = ref(false);
 const serverItemsEvents = ref([]);
 const totalItemsEvents = ref(0);
 const pageEvents = ref(1);
@@ -559,6 +540,37 @@ function resetForm() {
   };
 }
 
+
+
+// Function to manually check and update the event status to "upcoming"
+async function updateEventStatusToUpcoming(eventId, startDate) {
+  const currentDate = new Date();
+  const eventStartDate = new Date(startDate);
+
+  // Check if the event is 1 or 2 days away from today
+  const diffDays = Math.ceil((eventStartDate - currentDate) / (1000 * 60 * 60 * 24));
+  if (diffDays === 1 || diffDays === 2) {
+    try {
+      const { error } = await supabase
+        .from('Event')
+        .update({ status: 'upcoming' })
+        .eq('id', eventId);
+
+      if (error) throw error;
+
+      // Find the event in serverItemsEvents and update its status
+      const event = serverItemsEvents.value.find(e => e.id === eventId);
+      if (event) {
+        event.status = 'upcoming'; // Update the local status
+      }
+
+    } catch (error) {
+      console.error('Error updating event status to upcoming:', error.message);
+      $toast.error('Failed to update event status.');
+    }
+  }
+}
+
 async function updateEventStatusToEnded(eventId) {
   try {
     const { error } = await supabase
@@ -610,6 +622,7 @@ async function updateEventStatusToOngoing(eventId, startDate) {
 // Modify the fetchEvents function to include the status update check
 async function fetchEvents() {
   try {
+
     const { data, count, error } = await supabase
       .from('Event')
       .select(`
@@ -639,12 +652,14 @@ async function fetchEvents() {
 
     // Update the status of each event
     data.forEach(event => {
-      updateEventStatusToOngoing(event.id, event.start_date);
+      updateEventStatusToUpcoming(event.id, event.start_date); // Check and update to "upcoming"
+      updateEventStatusToOngoing(event.id, event.start_date);  // Check and update to "ongoing"
       const endDate = new Date(event.end_date);
       if (endDate < new Date() && event.status !== 'ended') {
-        updateEventStatusToEnded(event.id);
+        updateEventStatusToEnded(event.id); // Check and update to "ended"
       }
     });
+
 
     // Now group data by rounds and scores (same as before)
     serverItemsEvents.value = data.map(event => {
@@ -682,8 +697,25 @@ async function fetchEvents() {
     totalItemsEvents.value = count;
   } catch (error) {
     $toast.error('Error fetching events: ' + error.message);
+    isMatch.value = true;
   }
 }
+
+function handlePageUpdateEvents(newPage) {
+  pageEvents.value = newPage;
+  fetchEvents(); // Refetch data
+}
+
+// Handle items-per-page change
+function handleItemsPerPageUpdateEvents(newItemsPerPage) {
+  itemsPerPageEvents.value = newItemsPerPage;
+  fetchEvents(); // Refetch data
+}
+
+// Initial data fetch
+onMounted(() => {
+  fetchEvents();
+});
 
 
 // Call this function when the component is mounted or after inserting a new event

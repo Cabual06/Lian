@@ -17,17 +17,24 @@ import { Chart, BarController, BarElement, CategoryScale, LinearScale, Title, To
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Title, Tooltip);
 
 export default {
-  name: "MyChart",
+  name: "EventChart",
   setup() {
     const chartCanvas = ref(null);
     const chartData = ref([]);
     let chartInstance = null;
 
+    // Define color mapping for statuses
+    const statusColors = {
+      upcoming: 'yellow',
+      ongoing: 'green',
+      ended: 'red',
+    };
+
     // Fetch and aggregate data from Supabase
     const fetchData = async () => {
       const { data, error } = await supabase
-        .from('Score')
-        .select('Contestants_id, Score'); // Selecting Contestants_id and Score
+        .from('Event')
+        .select('start_date, end_date, status');
 
       if (error) {
         console.error("Error fetching data:", error);
@@ -35,37 +42,76 @@ export default {
       }
 
       if (!data || !data.length) {
-        console.warn("No data found in Supabase table 'Score'");
+        console.warn("No data found in Supabase table 'Event'");
         return [];
       }
 
       console.log("Fetched data:", data); // Log data to verify structure
 
-      // Aggregate the scores by Contestants_id
-      const aggregatedData = data.reduce((acc, item) => {
-        // If contestant already exists, add the score to the existing total
-        if (acc[item.Contestants_id]) {
-          acc[item.Contestants_id] += item.Score;
-        } else {
-          // Otherwise, initialize the score for this contestant
-          acc[item.Contestants_id] = item.Score;
-        }
-        return acc;
-      }, {});
+      // Aggregate events by month for each status
+      const upcomingCounts = Array(12).fill(0); // For 'upcoming' events
+      const ongoingCounts = Array(12).fill(0); // For 'ongoing' events
+      const endedCounts = Array(12).fill(0);   // For 'ended' events
 
-      // Map the aggregated data to Chart.js format
-      return Object.keys(aggregatedData).map(contestantId => ({
-        x: `Candidate ${contestantId}`, // Label each bar by Contestants_id
-        y: aggregatedData[contestantId] // Sum of the scores as y-value
-      }));
+      const today = new Date();
+
+      data.forEach(event => {
+        const startDate = new Date(event.start_date);
+        const endDate = new Date(event.end_date);
+        const month = startDate.getMonth(); // 0-based month index
+
+        // Determine status if not already set
+        let status = event.status;
+        if (status === 'upcoming' && today >= startDate && today <= endDate) {
+          status = 'ongoing';
+        } else if (status === 'ongoing' && today > endDate) {
+          status = 'ended';
+        }
+
+        // Increment the respective month's count based on status
+        if (status === 'upcoming') {
+          upcomingCounts[month] += 1;
+        } else if (status === 'ongoing') {
+          ongoingCounts[month] += 1;
+        } else if (status === 'ended') {
+          endedCounts[month] += 1;
+        }
+      });
+
+      // Map data to Chart.js format for multiple datasets
+      return {
+        labels: upcomingCounts.map((_, index) =>
+          new Date(0, index).toLocaleString('default', { month: 'short' })
+        ),
+        datasets: [
+          {
+            label: 'Upcoming Events',
+            data: upcomingCounts,
+            backgroundColor: '#F6EE5F', // Color for upcoming events
+            borderColor: '#000000',
+          },
+          {
+            label: 'Ongoing Events',
+            data: ongoingCounts,
+            backgroundColor: '#00FF7F', // Color for ongoing events
+            borderColor: '#000000',
+          },
+          {
+            label: 'Ended Events',
+            data: endedCounts,
+            backgroundColor: '#F44336', // Color for ended events
+            borderColor: '#000000',
+          },
+        ],
+      };
     };
 
     // Create the Chart.js bar chart
     const createChart = async () => {
-      const dataPoints = await fetchData();
-      chartData.value = dataPoints; // Store data points for conditional rendering
+      const data = await fetchData();
+      chartData.value = data.datasets[0].data; // Store data points for conditional rendering
 
-      if (!dataPoints.length) {
+      if (!data.datasets[0].data.length) {
         console.warn('No data available to display in chart');
         return;
       }
@@ -76,68 +122,45 @@ export default {
       }
 
       chartInstance = new Chart(chartCanvas.value, {
-        type: 'bar', 
-        data: {
-          labels: dataPoints.map(point => point.x), // Contestants as x-axis labels
-          datasets: [{
-            label: 'Total Score by Candidate',
-            data: dataPoints.map(point => point.y), // Aggregated scores as y-values
-            borderColor: '#000000',
-            backgroundColor: '#9E71D1',
-            borderWidth: 1,
-          }]
-        },
+        type: 'bar',
+        data,
         options: {
           scales: {
             x: {
-              grid:{
+              grid: {
                 color: '#1F1F1F',
               },
-              ticks:{
+              ticks: {
                 color: '#000000',
               },
-              title: { display: true, text: 'Contestants', color: '#000000' },
+              title: { display: true, text: 'Months', color: '#000000' },
             },
             y: {
-              grid:{
+              grid: {
                 color: '#1F1F1F',
               },
-              ticks:{
+              ticks: {
                 color: '#000000',
               },
-              title: { display: true, text: 'Total Score', color: '#000000' },
-              beginAtZero: true 
-            }
+              title: { display: true, text: 'Number of Events', color: '#000000' },
+              beginAtZero: true,
+            },
           },
           plugins: {
             tooltip: {
               callbacks: {
                 title: function(tooltipItem) {
-                  const contestantId = tooltipItem[0].label.split(" ")[1];
-                  return `Candidate ${contestantId}`;
+                  return tooltipItem[0].label;
                 },
                 label: function(tooltipItem) {
-                  const score = tooltipItem.raw;
-                  return `Total Score: ${score}`;
-                }
-              }
-            }
-          }
-        },
-        plugins: [{
-          id: 'chartAreaBorder',
-          beforeDraw: (chart) => {
-            const { ctx, chartArea: { left, right, top, bottom } } = chart;
-            ctx.save();
-            ctx.strokeStyle = '#1F1F1F'; // Border color
-            ctx.lineWidth = 1;        // Border thickness
-            ctx.strokeRect(left, top, right - left, bottom - top); // Draw rectangle around chart area
-            ctx.restore();
+                  const count = tooltipItem.raw;
+                  return `Events: ${count}`;
+                },
+              },
+            },
           },
-          
-        }]
+        },
       });
-
     };
 
     onMounted(async () => {
@@ -159,13 +182,14 @@ export default {
 };
 </script>
 
+
 <style scoped>
 canvas {
   padding: 30px;
   border-radius: 5px;
   margin-top: 10px;
   max-width: 99%;
-  max-height: 640px; 
+  max-height: 640px;
 }
 
 .no-data-message {
@@ -174,7 +198,5 @@ canvas {
   font-size: 16px;
   color: purple;
   font-weight: bold;
-
 }
-
 </style>

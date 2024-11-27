@@ -7,7 +7,7 @@
 
             <v-toolbar-title>
                 <span class="text-black font-weight-bold text-h6">TABULATION</span>  
-                <span class="font-weight-light text-white"> SYSTEM</span>
+                <span class="font-weight-light text-black"> SYSTEM</span>
             </v-toolbar-title>
 
             <v-spacer></v-spacer>

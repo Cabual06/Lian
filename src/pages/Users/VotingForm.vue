@@ -1,90 +1,40 @@
 <template>
-    <v-responsive>
-      <v-toolbar class="border-b-sm px-16 py-2" style="background-color: #8654bf;">
-        <v-toolbar-title>
-          <span class="text-black font-weight-bold text-h6">TABULATION</span>
-          <span> SYSTEM</span>
-        </v-toolbar-title>
+<v-responsive>
+  <v-toolbar class="border-b-sm px-16 py-2" style="background-color: #8654bf;">
+    <v-toolbar-title>
+      <span class="text-black font-weight-bold text-h6">TABULATION</span>
+      <span> SYSTEM</span>
+    </v-toolbar-title>
 
-        <v-spacer></v-spacer>
+    <v-spacer></v-spacer>
 
-        <!-- Display the account icon and user's email -->
-        <div class="d-flex align-center mr-4">
-          <v-icon color="white" class="mr-2">mdi-account-circle</v-icon>
-          <span class="text-white font-weight-bold">{{ userEmail }}</span>
-        </div>
+    <!-- Display the account icon and user's email -->
+    <div class="d-flex align-center mr-4">
+      <v-icon color="white" class="mr-2">mdi-account-circle</v-icon>
+      <span class="text-white font-weight-bold">{{ userEmail }}</span>
+    </div>
 
-        <v-btn color="black" @click="logout" class="bg-white">Logout</v-btn>
-      </v-toolbar>
+    <v-btn color="black" @click="logout" class="bg-white">Logout</v-btn>
+  </v-toolbar>
 
-        <v-toolbar class="bg-white px-16 border-b-lg">
-            <!-- <v-btn>
-                <v-icon class="text-green mr-4">mdi mdi-menu</v-icon>
-                All Catergories
-            </v-btn> -->
+  <v-toolbar class="bg-white px-16 border-b-lg">
+    <v-spacer></v-spacer>
+    <div class="text-center d-flex align-center">
+      <!-- Add the logo -->
+      <img
+        src="/src/assets/mdc1.png"
+        alt="Logo"
+        class="mr-4"
+        style="width: 30px; height: 30px;"
+      />
+      <span class="text-medium-emphasis opacity-80">
+        A System created by BSIT Students from MDC
+      </span>
+    </div>
+    <v-spacer></v-spacer>
+  </v-toolbar>
+</v-responsive>
 
-            <v-spacer></v-spacer>
-
-            <div class="text-center">
-                <span class="text-medium-emphasis opacity-80">A System createad by BSIT Students from MDC</span>
-                <v-menu open-on-hover>
-                <!-- <template v-slot:activator="{ props }">
-                    <v-btn to="/Users/VotingForm" color="black" v-bind="props">
-                        Home
-                    </v-btn>
-                </template>
-
-
-                </v-menu>
-
-                <v-menu open-on-hover>
-                <template v-slot:activator="{ props }">
-                    <v-btn color="black" v-bind="props">
-                        Candidates
-                    </v-btn>
-                </template> -->
-
-                <v-list class="bg-grey">
-                    <v-list-item>
-                        <v-list-item-title><RouterLink to="/Users/Male"><v-btn class="bg-grey">Male</v-btn></RouterLink></v-list-item-title>
-                        <v-list-item-title><RouterLink to="/Users/Female"><v-btn class="bg-grey">Female</v-btn></RouterLink></v-list-item-title>
-                        <!-- <v-list-item-title><v-btn class="bg-black">Gold Lane</v-btn></v-list-item-title>
-                        <v-list-item-title><v-btn class="bg-black">Mage</v-btn></v-list-item-title>
-                        <v-list-item-title><v-btn class="bg-black">Roamer</v-btn></v-list-item-title> -->
-                    </v-list-item>
-                </v-list>
-                </v-menu>
-
-                <v-menu open-on-hover>
-                <!-- <template v-slot:activator="{ props }">
-                    <v-btn color="green" v-bind="props">
-                        Categories
-                    </v-btn>
-                </template> -->
-                </v-menu>
-
-                <v-menu open-on-hover>
-                <template v-slot:activator="{ props }">
-                        <!-- <RouterLink to="/User/Vote"><v-btn color="green" v-bind="props">Print</v-btn></RouterLink> -->
-                </template>
-                </v-menu>
-            </div>
-
-            <v-spacer></v-spacer>
-
-            <!-- <v-btn>
-                <v-icon size="30px" class="text-green">mdi mdi-account</v-icon>
-            </v-btn>
-
-            <v-btn>
-                <v-icon class="text-green">mdi mdi-heart</v-icon>
-            </v-btn>
-
-            <v-btn>
-                <v-icon class="text-green">mdi mdi-cart</v-icon>
-            </v-btn> -->
-        </v-toolbar>
-    </v-responsive>
   <v-app style="background-color: #f2f2f2">
     <v-container>
       <!-- Event Selection Boxes -->
@@ -301,8 +251,9 @@
       </v-card>
     </v-dialog>
 
-      <v-dialog v-model="congratulationsDialog" max-width="500px">
+      <v-dialog persistent v-model="congratulationsDialog" max-width="500px">
             <v-card class="rounded-lg">
+
               <v-card-title class="text-h4 d-flex flex-column justify-center align-center text-green text-center font-weight-bold mt-8">Scores Submitted!
                 <img src="@/assets/ty.png" alt="Congratulations Icon" width="220" height="220" class="m-8 mt-10 mb-4" />
               </v-card-title>
@@ -314,6 +265,23 @@
             </v-card>
           </v-dialog>
     </v-container>
+
+
+    <v-dialog persistent v-model="statusDialogVisible" max-width="500px">
+      <v-card class="rounded-lg pa-8">
+        <v-card-title class="mt-4 text-h5 d-flex flex-column justify-center align-center text-red text-center font-weight-bold"> 
+          {{ statusDialogMessage }}
+          <img src="@/assets/sad.png" alt="Congratulations Icon" width="280" height="280" class="m-8 mb-4" />
+        </v-card-title>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="mt-6" variant="flat" color="red" @click="statusDialogVisible = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-app>
 </template>
 
@@ -336,6 +304,8 @@ const candidatesDialogVisible = ref(false);
 const contestants = ref([]);
 const loadingEvent = ref(null); // Track the event being loaded
 const userEmail = ref(''); 
+const statusDialogVisible = ref(false);
+const statusDialogMessage = ref('');
 
 // Fetch the logged-in user's UUID
 async function fetchUserId() {
@@ -593,6 +563,16 @@ async function submitScores() {
 async function handleCardClick(event) {
   if (loadingEvent.value) return; // Prevent multiple clicks
 
+  // Check if the event status requires a message
+  if (event.status === 'ended' || event.status === 'upcoming') {
+    statusDialogMessage.value =
+      event.status === 'ended'
+        ? 'Sorry, this event has already ended.'
+        : 'Event is upcoming and not yet available.';
+    statusDialogVisible.value = true;
+    return;
+  }
+
   // Start loading animation on the clicked event card
   loadingEvent.value = event.id;
 
@@ -610,8 +590,6 @@ async function handleCardClick(event) {
   dialogVisible.value = true;
 }
 
-
-
 onMounted(() => {
   fetchUserEmail();
   fetchEvents();
@@ -626,7 +604,7 @@ onMounted(() => {
   width: 98.5%;
   height: 100%;
   background-color: rgba(157, 130, 189, 0.5);
-  animation: fill-up 3s linear forwards; /* Default is 3s */
+  animation: fill-up 3.5s linear forwards; /* Default is 3s */
   z-index: 1;
   pointer-events: none; /* Ensure clicks pass through */
   border-radius: 5px; /* Match card border radius */

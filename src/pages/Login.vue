@@ -1,106 +1,118 @@
 <template>
   <v-app style="background-color: #f2f2f2">
-      <v-row>
-        <!-- Left Column: Image -->
-        <v-col
-          cols="12"
-          md="6"
-          class="d-flex justify-center"
-        >
-          <img
+    <v-row>
+      <!-- Left Column: Image -->
+      <v-col
+        cols="12"
+        md="6"
+        class="d-flex justify-center"
+      >
+        <img
           class="pa-10"
-            src="/src/assets/bg2.png"
-            alt="Login Illustration"
-            style="max-width: 90%; height: 100%;"
-          />
-        </v-col>
+          src="/src/assets/bg2.png"
+          alt="Login Illustration"
+          style="max-width: 90%; height: 100%;"
+        />
+      </v-col>
 
-        <!-- Right Column: Login Form -->
-        <v-col cols="12" md="6" class="d-flex align-center justify-center bg-white">
-          <v-card
-            class="pa-10"
-            elevation="6"
-            width="47%"
-            rounded="lg"
-          >
-            <div class="text-center mb-6">
-              <h3 class="font-weight-bold">
-                <span class="text-purple mb-6"></span>Login Account
-              </h3>
-            </div>
+      <!-- Right Column: Login Form -->
+      <v-col cols="12" md="6" class="d-flex flex-column align-center bg-white">
+        <div class="mt">
+            <img
+              src="/src/assets/mdc1.png"
+              alt="Logo"
+              style="max-width: 140px; height: auto; margin-bottom: 40px;"
+            />
+          </div>
 
-            <div class="text-subtitle-1 text-medium-emphasis mb-2">Account</div>
+        <v-card
+          class="pa-10"
+          elevation="6"
+          width="47%"
+          rounded="lg"
+        >
+          <!-- Logo Image -->
 
-            <v-text-field
-              v-model="email"
-              density="comfortable"
-              placeholder="Email address"
-              prepend-inner-icon="mdi-email-outline"
-              variant="outlined"
-              class="mb-4"
-            ></v-text-field>
 
-            <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between mb-2">
-              Password
-              <a
-                class="text-caption text-decoration-none text-blue"
-                rel="noopener noreferrer"
-                href="/Recover"
-                target="_blank"
-              >
-                Forgot login password?
-              </a>
-            </div>
+          <div class="text-center mb-6">
+            <h3 class="font-weight-bold">
+              <span class="text-purple mb-6"></span>Login Account
+            </h3>
+          </div>
 
-            <v-text-field
-              :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
-              :type="visible ? 'text' : 'password'"
-              density="comfortable"
-              placeholder="Enter your password"
-              prepend-inner-icon="mdi-lock-outline"
-              variant="outlined"
-              v-model="password"
-              @click:append-inner="visible = !visible"
-              class="mb-6"
-            ></v-text-field>
+          <div class="text-subtitle-1 text-medium-emphasis mb-2">Account</div>
 
-            <v-btn
-              class="mb-2 mt-2 font-weight-bold"
-              color="purple"
-              size="large"
-              variant="flat"
-              block
-              @click="login"
+          <v-text-field
+            v-model="email"
+            density="comfortable"
+            placeholder="Email address"
+            prepend-inner-icon="mdi-email-outline"
+            variant="outlined"
+            class="mb-4"
+          ></v-text-field>
+
+          <div class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between mb-2">
+            Password
+            <a
+              class="text-caption text-decoration-none text-blue"
+              rel="noopener noreferrer"
+              href="/Recover"
+              target="_blank"
             >
-              Log In
-            </v-btn>
+              Forgot login password?
+            </a>
+          </div>
 
-            <v-card-text class="text-center">
-              <a
-                class="text-blue text-decoration-none"
-                href="#"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                <RouterLink to="/Signup" class="text-decoration-none">
-                  Sign Up now
-                  <v-icon icon="mdi-chevron-right"></v-icon>
-                </RouterLink>
-              </a>
-            </v-card-text>
+          <v-text-field
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
+            :type="visible ? 'text' : 'password'"
+            density="comfortable"
+            placeholder="Enter your password"
+            prepend-inner-icon="mdi-lock-outline"
+            variant="outlined"
+            v-model="password"
+            @click:append-inner="visible = !visible"
+            class="mb-6"
+          ></v-text-field>
 
-            <v-progress-linear
-              :active="loading"
-              :indeterminate="loading"
-              color="purple"
-              absolute
-              bottom
-            ></v-progress-linear>
-          </v-card>
-        </v-col>
-      </v-row>
+          <v-btn
+            class="mb-2 mt-2 font-weight-bold"
+            color="purple"
+            size="large"
+            variant="flat"
+            block
+            @click="login"
+          >
+            Log In
+          </v-btn>
+
+          <v-card-text class="text-center">
+            <a
+              class="text-blue text-decoration-none"
+              href="#"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <RouterLink to="/Signup" class="text-decoration-none">
+                Sign Up now
+                <v-icon icon="mdi-chevron-right"></v-icon>
+              </RouterLink>
+            </a>
+          </v-card-text>
+
+          <v-progress-linear
+            :active="loading"
+            :indeterminate="loading"
+            color="purple"
+            absolute
+            bottom
+          ></v-progress-linear>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-app>
 </template>
+
 
 
 <script>
@@ -204,5 +216,9 @@ export default {
 <style scoped>
 .error-message .v-card-text {
   color: #000000;
+}
+
+.mt{
+  margin-top: 120px;
 }
 </style>

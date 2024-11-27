@@ -820,62 +820,73 @@ function closeScoresPopup() {
 
 // Function to handle PDF download
 function downloadPDF() {
-  const doc = new jsPDF();
+  const doc = new jsPDF('landscape');  // Set orientation to landscape
   let yPosition = 20; // Initial position for text in the PDF
 
   // Title
   doc.setFontSize(18);
-  doc.text('Scores Submitted', 14, yPosition);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Event Scores', 14, yPosition);
   yPosition += 10;
 
-  // Table Headers
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-
-  // Get criteria headers dynamically from the first score entry
-  const headers = ['Contestant Name', 'Round Name', ...Object.keys(eventScores.value[0].scores[0].scores), 'Total Score'];
-
-  // Prepare data for the table (each row contains contestant name, round name, scores for each criterion, and total score)
-  const data = [];
-
+  // Loop through each round in eventScores to add tables
   eventScores.value.forEach(round => {
+    // Round title
+    doc.setFontSize(14);
+    doc.text(`Round: ${round.roundName}`, 14, yPosition);
+    yPosition += 10;
+
+    // Table Headers
+    const headers = ['Contestant Name', ...Object.keys(round.scores[0].scores), 'Total Score'];
+
+    // Prepare data for the table (each row contains contestant name, scores for each criterion, and total score)
+    const data = [];
     round.scores.forEach(scoreEntry => {
       const row = [
         scoreEntry.contestantName,
-        round.roundName,
         ...Object.keys(scoreEntry.scores).map(criterion => scoreEntry.scores[criterion] || 'No Score'),
         Object.values(scoreEntry.scores).reduce((sum, score) => sum + score, 0)
       ];
       data.push(row);
     });
-  });
 
-  // Table styling and generation using autoTable
-  doc.autoTable({
-    head: [headers],
-    body: data,
-    startY: yPosition + 10,
-    theme: 'striped',
-    headStyles: {
-      fillColor: [92, 47, 145], // Purple color for headers
-      textColor: [255, 255, 255], // White text
-      fontStyle: 'bold',
-    },
-    bodyStyles: {
-      fontSize: 10,
-      lineColor: [92, 47, 145], // Purple border for table cells
-      lineWidth: 0.1,
-    },
-    margin: { top: 10, left: 14 },
-    columnStyles: {
-      0: { cellWidth: 30 },
-      1: { cellWidth: 30 },
-    }
+    // Table styling and generation using autoTable
+    doc.autoTable({
+      head: [headers],
+      body: data,
+      startY: yPosition + 5,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [92, 47, 145], // Purple color for headers
+        textColor: [255, 255, 255], // White text
+        fontStyle: 'bold',
+        halign: 'center',
+      },
+      bodyStyles: {
+        fontSize: 10,
+        lineColor: [92, 47, 145],
+        lineWidth: 0.1,
+        halign: 'center',
+      },
+      margin: { top: 10, left: 14, right: 14 },
+      columnStyles: {
+        0: { cellWidth: 40 }, // Wider cell for "Contestant Name"
+        1: { cellWidth: 40 },
+        2: { cellWidth: 30 },
+        3: { cellWidth: 30 },
+        // Add column styles for more criteria if necessary
+      }
+    });
+
+    // Adjust Y position for the next round
+    yPosition = doc.lastAutoTable.finalY + 10;
   });
 
   // Save the PDF with a filename
   doc.save('scores.pdf');
 }
+
+
 
 
 // Function to handle printing

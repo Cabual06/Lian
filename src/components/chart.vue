@@ -49,9 +49,9 @@ export default {
       console.log("Fetched data:", data); // Log data to verify structure
 
       // Aggregate events by month for each status
-      const upcomingCounts = Array(12).fill(0); // For 'upcoming' events
-      const ongoingCounts = Array(12).fill(0); // For 'ongoing' events
-      const endedCounts = Array(12).fill(0);   // For 'ended' events
+      const upcomingCounts = Array(12).fill(0); 
+      const ongoingCounts = Array(12).fill(0);
+      const endedCounts = Array(12).fill(0); 
 
       const today = new Date();
 
@@ -89,18 +89,21 @@ export default {
             data: upcomingCounts,
             backgroundColor: '#F6EE5F', // Color for upcoming events
             borderColor: '#000000',
+            borderRadius: '550',
           },
           {
             label: 'Ongoing Events',
             data: ongoingCounts,
             backgroundColor: '#00FF7F', // Color for ongoing events
             borderColor: '#000000',
+            borderRadius: '550',
           },
           {
             label: 'Ended Events',
             data: endedCounts,
             backgroundColor: '#F44336', // Color for ended events
             borderColor: '#000000',
+            borderRadius: '550',
           },
         ],
       };
@@ -131,7 +134,7 @@ export default {
                 color: '#1F1F1F',
               },
               ticks: {
-                color: '#000000',
+                color: '#9F2B68',
               },
               title: { display: true, text: 'Months', color: '#000000' },
             },
@@ -140,9 +143,9 @@ export default {
                 color: '#1F1F1F',
               },
               ticks: {
-                color: '#000000',
+                color: '#9F2B68',
               },
-              title: { display: true, text: 'Number of Events', color: '#000000' },
+              title: { display: true, text: 'Number of Events', color: '#9F2B68' },
               beginAtZero: true,
             },
           },

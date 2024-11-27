@@ -1,7 +1,14 @@
 <template>
   <v-app style="background-color: #f2f2f2">
     <div class="pt-16">
-      <div class="text-center pt-16 mt-10">
+      <div class="text-center pt-4">
+        <div class="">
+            <img
+              src="/src/assets/mdc1.png"
+              alt="Logo"
+              style="max-width: 140px; height: auto; margin-bottom: 40px;"
+            />
+          </div>
         <h1>Recover Password</h1>
         <p>You'll receive an email to recover your password</p><br>
       </div>
